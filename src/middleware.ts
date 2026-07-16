@@ -1,23 +1,17 @@
-import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
+import { NextRequest, NextResponse } from "next/server";
 
 const publicRoutes = ["/", "/login", "/register", "/agendamento"];
 
-const adminRoutes = [
-  "/dashboard/barbeiros",
-  "/dashboard/clientes",
-  "/dashboard/servicos",
-  "/dashboard/relatorios",
-  "/dashboard/config",
+const publicApiPrefixes = [
+  "/api/auth",
+  "/api/services",
+  "/api/barbers",
+  "/api/appointments/available-slots",
 ];
 
-const staffRoutes = ["/dashboard", "/dashboard/agenda"];
-
-export default auth((req) => {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const authObj = req.auth as { user?: { role?: string } } | null;
-  const isAuthenticated = !!authObj;
-  const userRole = authObj?.user?.role;
 
   if (
     pathname.startsWith("/_next") ||
@@ -27,14 +21,13 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
-  if (
-    pathname.startsWith("/api/auth") ||
-    pathname.startsWith("/api/services") ||
-    pathname.startsWith("/api/barbers") ||
-    pathname.startsWith("/api/appointments/available-slots")
-  ) {
+  if (publicApiPrefixes.some((p) => pathname.startsWith(p))) {
     return NextResponse.next();
   }
+
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const isAuthenticated = !!token;
+  const userRole = token?.role as string | undefined;
 
   if (pathname.startsWith("/api/")) {
     if (!isAuthenticated) {
@@ -76,7 +69,7 @@ export default auth((req) => {
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
