@@ -7,6 +7,7 @@ const publicApiPrefixes = [
   "/api/auth",
   "/api/services",
   "/api/barbers",
+  "/api/seed",
   "/api/appointments/available-slots",
 ];
 
