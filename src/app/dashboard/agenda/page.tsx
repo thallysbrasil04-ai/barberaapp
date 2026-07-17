@@ -79,17 +79,21 @@ export default function AgendaPage() {
   }
 
   async function handleStatusChange(id: string, status: string) {
-    const res = await fetch(`/api/appointments/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    const data = await res.json();
-    if (data.ok) {
-      addToast("Status atualizado!", "success");
-      loadAppointments(searchDate);
-    } else {
-      addToast("Erro ao atualizar", "error");
+    try {
+      const res = await fetch(`/api/appointments/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        addToast("Status atualizado!", "success");
+        loadAppointments(searchDate);
+      } else {
+        addToast(data.error || "Erro ao atualizar", "error");
+      }
+    } catch {
+      addToast("Erro de conexão", "error");
     }
   }
 

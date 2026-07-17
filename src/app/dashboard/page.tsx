@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import {
   Calendar,
   Users,
-  Store,
   Scissors,
   DollarSign,
   Clock,
@@ -22,6 +21,8 @@ import {
   PieChart,
   User,
   Award,
+  Store,
+  FileBarChart,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { APPOINTMENT_STYLES, APPOINTMENT_LABELS } from "@/constants";
@@ -136,7 +137,7 @@ export default function DashboardPage() {
     {
       label: "Faturamento",
       value: formatCurrency(data?.revenue ?? 0),
-      sub: data?.period === "today" ? "hoje" : `este ${data?.period === "week" ? "mês" : "período"}`,
+      sub: data?.period === "today" ? "hoje" : data?.period === "week" ? "esta semana" : "este mês",
       icon: DollarSign,
     },
     {
@@ -491,11 +492,11 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <div className="flex flex-wrap gap-2">
-            <Link href="/dashboard/agenda"><Button variant="outline" size="sm">📅 Agenda</Button></Link>
-            <Link href="/dashboard/barbeiros"><Button variant="outline" size="sm">✂️ Barbeiros</Button></Link>
-            <Link href="/dashboard/servicos"><Button variant="outline" size="sm">💈 Serviços</Button></Link>
-            <Link href="/dashboard/clientes"><Button variant="outline" size="sm">👥 Clientes</Button></Link>
-            <Link href="/dashboard/relatorios"><Button variant="outline" size="sm">📊 Relatórios</Button></Link>
+            <Link href="/dashboard/agenda"><Button variant="outline" size="sm"><Calendar className="h-4 w-4" />Agenda</Button></Link>
+            <Link href="/dashboard/barbeiros"><Button variant="outline" size="sm"><Scissors className="h-4 w-4" />Barbeiros</Button></Link>
+            <Link href="/dashboard/servicos"><Button variant="outline" size="sm"><Store className="h-4 w-4" />Serviços</Button></Link>
+            <Link href="/dashboard/clientes"><Button variant="outline" size="sm"><Users className="h-4 w-4" />Clientes</Button></Link>
+            <Link href="/dashboard/relatorios"><Button variant="outline" size="sm"><FileBarChart className="h-4 w-4" />Relatórios</Button></Link>
           </div>
         </>
       )}

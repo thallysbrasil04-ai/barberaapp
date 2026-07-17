@@ -3,7 +3,7 @@ import { updateAppointmentStatus } from "@/services/appointment.service";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-const VALID_STATUSES = ["AGENDADO", "CONFIRMADO", "EM_ATENDIMENTO", "FINALIZADO", "CANCELADO", "NAO_COMPARECEU"];
+const VALID_STATUSES = ["AGENDADO", "CONFIRMADO", "EM_ANDAMENTO", "FINALIZADO", "CANCELADO", "NAO_COMPARECEU"];
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {

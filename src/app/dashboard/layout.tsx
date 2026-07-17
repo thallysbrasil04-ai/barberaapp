@@ -36,7 +36,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const visibleNav = navItems.filter((item) => user && (item.roles as string[]).includes(user.role));
+  const isLoaded = !!user;
+  const visibleNav = isLoaded
+    ? navItems.filter((item) => (item.roles as string[]).includes(user!.role))
+    : [];
 
   return (
     <div className="flex h-screen bg-neutral-100">
@@ -64,33 +67,45 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
-          {visibleNav.map((item) => {
-            const isActive = item.href === "/dashboard"
-              ? pathname === "/dashboard"
-              : pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => isMobile && setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                  isActive
-                    ? "bg-red-600 text-white shadow-md shadow-red-600/20"
-                    : "text-neutral-400 hover:text-white hover:bg-neutral-800"
-                }`}
-              >
-                <item.icon className={`h-4 w-4 ${isActive ? "text-white" : ""}`} />
-                {item.label}
-              </Link>
-            );
-          })}
+          {!isLoaded ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-10 bg-neutral-800 rounded-lg animate-pulse" />
+            ))
+          ) : (
+            visibleNav.map((item) => {
+              const isActive = item.href === "/dashboard"
+                ? pathname === "/dashboard"
+                : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => isMobile && setSidebarOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    isActive
+                      ? "bg-red-600 text-white shadow-md shadow-red-600/20"
+                      : "text-neutral-400 hover:text-white hover:bg-neutral-800"
+                  }`}
+                >
+                  <item.icon className={`h-4 w-4 ${isActive ? "text-white" : ""}`} />
+                  {item.label}
+                </Link>
+              );
+            })
+          )}
         </nav>
 
         <div className="p-4 border-t border-neutral-800">
-          {user && (
+          {isLoaded && (
             <div className="mb-3 px-2 text-sm">
-              <p className="font-medium text-white truncate">{user.name}</p>
-              <p className="text-neutral-500 text-xs truncate">{user.email}</p>
+              <p className="font-medium text-white truncate">{user!.name}</p>
+              <p className="text-neutral-500 text-xs truncate">{user!.email}</p>
+            </div>
+          )}
+          {!isLoaded && (
+            <div className="mb-3 px-2 space-y-2">
+              <div className="h-4 bg-neutral-800 rounded animate-pulse w-24" />
+              <div className="h-3 bg-neutral-800 rounded animate-pulse w-32" />
             </div>
           )}
           <button

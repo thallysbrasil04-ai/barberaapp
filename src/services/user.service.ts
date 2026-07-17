@@ -54,10 +54,12 @@ export async function getUserById(id: string) {
   });
 }
 
-export async function listUsers(page = 1, limit = 20) {
+export async function listUsers(page = 1, limit = 20, role?: string) {
   const skip = (page - 1) * limit;
+  const where = role ? { role } : {};
   const [users, total] = await Promise.all([
     prisma.user.findMany({
+      where,
       skip,
       take: limit,
       orderBy: { createdAt: "desc" },
@@ -71,7 +73,7 @@ export async function listUsers(page = 1, limit = 20) {
         createdAt: true,
       },
     }),
-    prisma.user.count(),
+    prisma.user.count({ where }),
   ]);
   return { users, total, page, totalPages: Math.ceil(total / limit) };
 }

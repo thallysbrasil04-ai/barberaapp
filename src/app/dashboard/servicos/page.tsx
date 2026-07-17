@@ -14,7 +14,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useToastContext } from "@/providers/toast-provider";
-import { formatCurrency, formatPhone } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
+import { SERVICE_CATEGORIES } from "@/constants";
 import { Plus, Loader2 } from "lucide-react";
 
 interface Service {
@@ -125,7 +126,7 @@ export default function ServicosPage() {
     }
   }
 
-  const categories = ["CORTE", "BARBA", "HIDRATAÇÃO", "SOBRANCELHA", "COMBO", "OUTROS"];
+  const categories = SERVICE_CATEGORIES;
 
   return (
     <div className="space-y-6">

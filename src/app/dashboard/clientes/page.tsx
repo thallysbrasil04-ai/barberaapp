@@ -27,7 +27,7 @@ export default function ClientesPage() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetch("/api/users")
+    fetch("/api/users?role=CLIENT")
       .then((res) => res.json())
       .then((data) => {
         if (data.ok) setUsers(data.data.users);

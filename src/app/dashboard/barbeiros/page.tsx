@@ -118,38 +118,42 @@ export default function BarbeirosPage() {
   async function saveHours() {
     if (!hoursOpen?.barber) return;
     setSavingHours(true);
-
-    const res = await fetch(`/api/barbers/${hoursOpen.barber.id}/hours`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(hours),
-    });
-
-    const data = await res.json();
-    if (data.ok) {
-      addToast("Horários salvos com sucesso!", "success");
-    } else {
-      addToast("Erro ao salvar horários", "error");
+    try {
+      const res = await fetch(`/api/barbers/${hoursOpen.barber.id}/hours`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(hours),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        addToast("Horários salvos com sucesso!", "success");
+      } else {
+        addToast(data.error || "Erro ao salvar horários", "error");
+      }
+    } catch {
+      addToast("Erro de conexão", "error");
     }
     setSavingHours(false);
   }
 
   async function addBlockedDate() {
     if (!hoursOpen?.barber || !newBlocked.date) return;
-
-    const res = await fetch(`/api/barbers/${hoursOpen.barber.id}/blocked-dates`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newBlocked),
-    });
-
-    const data = await res.json();
-    if (data.ok) {
-      setBlockedDates([...blockedDates, data.data]);
-      setNewBlocked({ date: "", reason: "" });
-      addToast("Data bloqueada!", "success");
-    } else {
-      addToast(data.error || "Erro ao bloquear data", "error");
+    try {
+      const res = await fetch(`/api/barbers/${hoursOpen.barber.id}/blocked-dates`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newBlocked),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setBlockedDates([...blockedDates, data.data]);
+        setNewBlocked({ date: "", reason: "" });
+        addToast("Data bloqueada!", "success");
+      } else {
+        addToast(data.error || "Erro ao bloquear data", "error");
+      }
+    } catch {
+      addToast("Erro de conexão", "error");
     }
   }
 
