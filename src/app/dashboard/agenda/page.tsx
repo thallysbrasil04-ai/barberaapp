@@ -39,6 +39,7 @@ export default function AgendaPage() {
       .then((data) => {
         if (data.ok) setAppointments(data.data.appointments);
       })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }
 

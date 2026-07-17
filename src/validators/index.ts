@@ -2,14 +2,14 @@ import { z } from "zod";
 
 export const loginSchema = z.object({
   email: z.string().email("E-mail inválido"),
-  password: z.string().min(6, "Mínimo de 6 caracteres"),
+  password: z.string().min(8, "Mínimo de 8 caracteres"),
 });
 
 export const registerSchema = z.object({
   name: z.string().min(3, "Mínimo de 3 caracteres"),
   email: z.string().email("E-mail inválido"),
   phone: z.string().regex(/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/, "Telefone inválido"),
-  password: z.string().min(6, "Mínimo de 6 caracteres"),
+  password: z.string().min(8, "Mínimo de 8 caracteres"),
   confirmPassword: z.string(),
   cpf: z.string().optional(),
   consentLGPD: z.boolean().refine((v) => v === true, "É necessário concordar com a política de privacidade"),
@@ -30,7 +30,7 @@ export const barberSchema = z.object({
   name: z.string().min(3, "Mínimo de 3 caracteres"),
   email: z.string().email("E-mail inválido"),
   phone: z.string().regex(/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/, "Telefone inválido"),
-  password: z.string().min(6, "Mínimo de 6 caracteres").optional().or(z.literal("")),
+  password: z.string().min(8, "Mínimo de 8 caracteres").optional().or(z.literal("")),
   bio: z.string().optional(),
   specialties: z.string().optional(),
 });

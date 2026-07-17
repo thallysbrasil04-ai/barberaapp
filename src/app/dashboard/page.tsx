@@ -61,6 +61,7 @@ export default function DashboardPage() {
     fetch("/api/dashboard")
       .then((r) => r.json())
       .then((d) => { if (d.ok) setData(d.data); })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 

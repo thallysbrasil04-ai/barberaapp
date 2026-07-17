@@ -1,7 +1,7 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
-const publicRoutes = ["/", "/login", "/register", "/agendamento"];
+const publicRoutes = ["/", "/login", "/register", "/agendamento", "/privacidade"];
 
 const publicApiPrefixes = [
   "/api/auth",
@@ -33,7 +33,7 @@ export async function middleware(req: NextRequest) {
     if (!isAuthenticated) {
       return NextResponse.json({ ok: false, error: "Não autenticado" }, { status: 401 });
     }
-    const isAdminRoute = pathname.startsWith("/api/users") || pathname.startsWith("/api/dashboard");
+    const isAdminRoute = (pathname.startsWith("/api/users") && !pathname.includes("/delete-account")) || pathname.startsWith("/api/dashboard");
     if (isAdminRoute && userRole !== "ADMIN") {
       return NextResponse.json({ ok: false, error: "Não autorizado" }, { status: 403 });
     }

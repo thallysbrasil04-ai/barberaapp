@@ -5,14 +5,30 @@ import { Button } from "@/components/ui/button";
 import { useToastContext } from "@/providers/toast-provider";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { useState } from "react";
 
 export default function ConfigPage() {
   const { addToast } = useToastContext();
   const router = useRouter();
+  const [deleting, setDeleting] = useState(false);
 
   async function requestDataDeletion() {
-    if (!confirm("Tem certeza? Seus dados serão anonimizados.")) return;
-    addToast("Solicitação de exclusão enviada. Seus dados serão removidos em até 15 dias.", "success");
+    if (!confirm("Tem certeza? Seus dados serão anonimizados e você será desconectado.")) return;
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/users/delete-account", { method: "POST" });
+      const data = await res.json();
+      if (data.ok) {
+        addToast("Dados anonimizados com sucesso!", "success");
+        await signOut({ callbackUrl: "/" });
+      } else {
+        addToast(data.error || "Erro ao anonimizar dados", "error");
+      }
+    } catch {
+      addToast("Erro ao anonimizar dados", "error");
+    } finally {
+      setDeleting(false);
+    }
   }
 
   return (
@@ -28,8 +44,8 @@ export default function ConfigPage() {
               Você pode solicitar a exclusão dos seus dados pessoais do sistema.
               Dados de agendamentos serão anonimizados.
             </p>
-            <Button variant="outline" onClick={requestDataDeletion}>
-              Solicitar Exclusão de Dados
+            <Button variant="outline" onClick={requestDataDeletion} disabled={deleting}>
+              {deleting ? "Anonimizando..." : "Solicitar Exclusão de Dados"}
             </Button>
           </div>
 
