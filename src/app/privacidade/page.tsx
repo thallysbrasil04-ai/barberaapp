@@ -4,7 +4,7 @@ export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-neutral-50">
       <div className="max-w-3xl mx-auto px-4 py-12">
-        <Link href="/" className="text-red-600 hover:underline text-sm mb-6 inline-block">&larr; Voltar</Link>
+        <Link href="/" className="text-red-600 hover:underline text-sm mb-6 inline-block">Voltar</Link>
         <h1 className="text-3xl font-bold mb-8">Política de Privacidade</h1>
 
         <div className="space-y-6 text-neutral-700">
