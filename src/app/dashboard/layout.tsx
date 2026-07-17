@@ -60,7 +60,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
           <span className="font-bold text-lg text-white">BarberApp</span>
           {isMobile && (
-            <button onClick={() => setSidebarOpen(false)} className="ml-auto cursor-pointer text-neutral-400 hover:text-white">
+            <button onClick={() => setSidebarOpen(false)} className="ml-auto cursor-pointer text-neutral-400 hover:text-white" aria-label="Fechar menu">
               <X className="h-5 w-5" />
             </button>
           )}
@@ -121,7 +121,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="flex-1 flex flex-col min-w-0">
         <header className="bg-white border-b border-neutral-200 px-6 py-3.5 flex items-center gap-4 shadow-sm">
           {isMobile && (
-            <button onClick={() => setSidebarOpen(true)} className="cursor-pointer text-neutral-600 hover:text-neutral-900">
+            <button onClick={() => setSidebarOpen(true)} className="cursor-pointer text-neutral-600 hover:text-neutral-900" aria-label="Abrir menu">
               <Menu className="h-5 w-5" />
             </button>
           )}

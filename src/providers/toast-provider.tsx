@@ -29,7 +29,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             )}
           >
             <span className="flex-1">{toast.message}</span>
-            <button onClick={() => removeToast(toast.id)} className="cursor-pointer">
+            <button onClick={() => removeToast(toast.id)} className="cursor-pointer" aria-label="Fechar notificação">
               <X className="h-4 w-4" />
             </button>
           </div>

@@ -142,10 +142,10 @@ export async function getDashboardMetrics(period: Period = "today") {
     todayAppointments,
     todayConfirmed,
     statusCounts,
-    dayCounts,
+    dayGrouped,
     recentAppointments,
-    revenuePeriod,
-    revenueAll,
+    revenuePeriodAgg,
+    revenueAllAgg,
     topServices,
     barberStats,
     noShowCount,
@@ -161,13 +161,11 @@ export async function getDashboardMetrics(period: Period = "today") {
       _count: { id: true },
       where: { ...(period !== "today" ? periodFilter : {}) },
     }),
-    Promise.all(
-      dayLabels.map((d) =>
-        prisma.appointment.count({
-          where: { date: d.date, ...notCancelled },
-        })
-      )
-    ),
+    prisma.appointment.groupBy({
+      by: ["date"],
+      _count: { id: true },
+      where: { date: { gte: range.start, lte: range.end }, ...notCancelled },
+    }),
     prisma.appointment.findMany({
       where: { date: { gte: today }, status: { notIn: ["CANCELADO", "FINALIZADO", "NAO_COMPARECEU"] } },
       orderBy: [{ date: "asc" }, { time: "asc" }],
@@ -202,8 +200,8 @@ export async function getDashboardMetrics(period: Period = "today") {
     prisma.appointment.count({ where: { status: "CANCELADO" } }),
   ]);
 
-  const revenuePeriodTotal = revenuePeriod.reduce((acc, curr) => acc + curr.service.price, 0);
-  const revenueAllTotal = revenueAll.reduce((acc, curr) => acc + curr.service.price, 0);
+  const revenuePeriodTotal = revenuePeriodAgg.reduce((acc, curr) => acc + curr.service.price, 0);
+  const revenueAllTotal = revenueAllAgg.reduce((acc, curr) => acc + curr.service.price, 0);
   const statusMap: Record<string, number> = {};
   statusCounts.forEach((s) => { statusMap[s.status] = s._count.id; });
 
@@ -212,22 +210,36 @@ export async function getDashboardMetrics(period: Period = "today") {
     ? Math.round(((totalAppointments - (statusMap["NAO_COMPARECEU"] || 0) - (statusMap["CANCELADO"] || 0)) / totalAppointments) * 100)
     : 0;
 
-  const topServicesData = await Promise.all(
-    topServices.map(async (s) => {
-      const service = await prisma.service.findUnique({ where: { id: s.serviceId } });
-      return { name: service?.name || "Desconhecido", count: s._count.id };
-    })
-  );
+  const dayCountMap = new Map(dayGrouped.map((d) => [d.date, d._count.id]));
+  const dayData = dayLabels.map((d) => ({ ...d, count: dayCountMap.get(d.date) || 0 }));
 
-  const barberStatsData = await Promise.all(
-    barberStats.map(async (b) => {
-      const barber = await prisma.barber.findUnique({
-        where: { id: b.barberId },
-        include: { user: { select: { name: true } } },
-      });
-      return { name: barber?.user.name || "Desconhecido", count: b._count.id };
-    })
-  );
+  const serviceIds = topServices.map((s) => s.serviceId);
+  const servicesMap = serviceIds.length > 0
+    ? new Map(
+        (await prisma.service.findMany({
+          where: { id: { in: serviceIds } },
+          select: { id: true, name: true },
+        })).map((s) => [s.id, s.name])
+      )
+    : new Map();
+  const topServicesData = topServices.map((s) => ({
+    name: servicesMap.get(s.serviceId) || "Desconhecido",
+    count: s._count.id,
+  }));
+
+  const barberIds = barberStats.map((b) => b.barberId);
+  const barbersMap = barberIds.length > 0
+    ? new Map(
+        (await prisma.barber.findMany({
+          where: { id: { in: barberIds } },
+          include: { user: { select: { name: true } } },
+        })).map((b) => [b.id, b.user.name])
+      )
+    : new Map();
+  const barberStatsData = barberStats.map((b) => ({
+    name: barbersMap.get(b.barberId) || "Desconhecido",
+    count: b._count.id,
+  }));
 
   return {
     todayAppointments,
@@ -240,7 +252,7 @@ export async function getDashboardMetrics(period: Period = "today") {
     period,
     completionRate,
     nextAppointments: recentAppointments,
-    dayData: dayLabels.map((d, i) => ({ ...d, count: dayCounts[i] })),
+    dayData,
     statusDistribution: statusMap,
     topServices: topServicesData,
     barberStats: barberStatsData,

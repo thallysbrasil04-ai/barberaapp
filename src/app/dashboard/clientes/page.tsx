@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { formatPhone } from "@/lib/utils";
 import { useToastContext } from "@/providers/toast-provider";
 import { ROLES } from "@/constants";
-import { Search, Plus, Loader2 } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 
 interface User {
   id: string;
