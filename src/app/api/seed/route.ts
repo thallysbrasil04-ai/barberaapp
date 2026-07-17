@@ -6,8 +6,9 @@ export async function GET() {
   try {
     const count = await prisma.user.count();
     if (count > 0) {
-      return NextResponse.json({ ok: false, message: "Database already seeded" });
+      return NextResponse.json({ ok: false, message: "Database already seeded", count });
     }
+    console.log("Seeding database...");
 
     const adminPassword = await bcrypt.hash("admin123", 10);
     const barberPassword = await bcrypt.hash("barber123", 10);
@@ -73,7 +74,8 @@ export async function GET() {
     }
 
     const days = [1, 2, 3, 4, 5, 6];
-    for (const barber of [barber2]) {
+    const barbers = await prisma.barber.findMany();
+    for (const barber of barbers) {
       for (const day of days) {
         await prisma.workingHours.create({
           data: {
