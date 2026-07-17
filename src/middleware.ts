@@ -8,6 +8,7 @@ const publicApiPrefixes = [
   "/api/services",
   "/api/barbers",
   "/api/appointments/available-slots",
+  "/api/seed",
 ];
 
 export async function middleware(req: NextRequest) {
