@@ -105,7 +105,11 @@ export default function AgendaPage() {
       <Card>
         <CardHeader>
           <CardTitle>
-            {isClient ? "Meus Agendamentos" : `Agendamentos de ${formatDate(searchDate)}`}
+            {isClient
+              ? "Meus Agendamentos"
+              : user?.role === "BARBER"
+                ? `Minha Agenda - ${formatDate(searchDate)}`
+                : `Agendamentos de ${formatDate(searchDate)}`}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -126,11 +130,11 @@ export default function AgendaPage() {
                 <div key={apt.id} className="flex flex-wrap items-center justify-between gap-4 border-b pb-3">
                   <div className="min-w-0 flex-1">
                     <p className="font-medium">
-                      {apt.time} {!isClient && `- ${apt.user.name}`}
+                      {apt.time} {user?.role !== "BARBER" && !isClient && `- ${apt.user.name}`}
                     </p>
                     <p className="text-sm text-neutral-500">
                       {apt.service.name}
-                      {!isClient && ` com ${apt.barber.user.name}`}
+                      {user?.role !== "BARBER" && !isClient && ` com ${apt.barber.user.name}`}
                       {isClient && ` - ${apt.barber.user.name}`}
                     </p>
                     {!isClient && (
@@ -154,7 +158,7 @@ export default function AgendaPage() {
                       <select
                         value={apt.status}
                         onChange={(e) => handleStatusChange(apt.id, e.target.value)}
-                        className="text-xs border rounded px-2 py-1"
+                        className={`text-xs border rounded px-2 py-1 ${user?.role === "BARBER" ? "border-blue-300 bg-blue-50" : ""}`}
                       >
                         {Object.entries(APPOINTMENT_LABELS).map(([key, label]) => (
                           <option key={key} value={key}>
