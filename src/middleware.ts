@@ -1,5 +1,5 @@
-import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
+import { NextRequest, NextResponse } from "next/server";
 
 const publicRoutes = ["/", "/login", "/register", "/agendamento", "/privacidade"];
 
@@ -10,24 +10,28 @@ const publicApiPrefixes = [
   "/api/appointments/available-slots",
 ];
 
-export default auth((req) => {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const session = req.auth;
 
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/static") ||
     pathname === "/favicon.ico"
   ) {
-    return;
+    return NextResponse.next();
   }
 
   if (publicApiPrefixes.some((p) => pathname.startsWith(p))) {
-    return;
+    return NextResponse.next();
   }
 
-  const isAuthenticated = !!session?.user;
-  const userRole = session?.user?.role as string | undefined;
+  const token = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET,
+    cookieName: "__Secure-authjs.session-token",
+  });
+  const isAuthenticated = !!token;
+  const userRole = token?.role as string | undefined;
 
   if (pathname.startsWith("/api/")) {
     if (!isAuthenticated) {
@@ -37,11 +41,11 @@ export default auth((req) => {
     if (isAdminRoute && userRole !== "ADMIN") {
       return NextResponse.json({ ok: false, error: "Não autorizado" }, { status: 403 });
     }
-    return;
+    return NextResponse.next();
   }
 
   if (publicRoutes.includes(pathname)) {
-    return;
+    return NextResponse.next();
   }
 
   if (!isAuthenticated) {
@@ -52,7 +56,7 @@ export default auth((req) => {
 
   if (userRole === "CLIENT") {
     if (pathname.startsWith("/dashboard/agenda")) {
-      return;
+      return NextResponse.next();
     }
     if (pathname.startsWith("/dashboard")) {
       return NextResponse.redirect(new URL("/agendamento", req.url));
@@ -61,20 +65,20 @@ export default auth((req) => {
 
   if (userRole === "BARBER") {
     if (pathname === "/dashboard" || pathname.startsWith("/dashboard/agenda")) {
-      return;
+      return NextResponse.next();
     }
     return NextResponse.redirect(new URL("/dashboard/agenda", req.url));
   }
 
   if (userRole === "ADMIN") {
     if (pathname.startsWith("/dashboard")) {
-      return;
+      return NextResponse.next();
     }
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  return;
-});
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
