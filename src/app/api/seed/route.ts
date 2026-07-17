@@ -4,55 +4,61 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const count = await prisma.user.count();
-    if (count > 0) {
-      return NextResponse.json({ ok: false, message: "Database already seeded", count });
-    }
-    console.log("Seeding database...");
-
     const adminPassword = await bcrypt.hash("admin123", 10);
     const barberPassword = await bcrypt.hash("barber123", 10);
     const clientPassword = await bcrypt.hash("client123", 10);
 
-    await prisma.user.create({
-      data: {
+    await prisma.user.upsert({
+      where: { email: "admin@barberapp.com" },
+      update: {},
+      create: {
         name: "Admin", email: "admin@barberapp.com", phone: "11999999999",
         password: adminPassword, role: "ADMIN", active: true, consentLGPD: true,
       },
     });
 
-    const barberUser = await prisma.user.create({
-      data: {
+    const barberUser = await prisma.user.upsert({
+      where: { email: "barber@barberapp.com" },
+      update: {},
+      create: {
         name: "Carlos Silva", email: "barber@barberapp.com", phone: "11988888888",
         password: barberPassword, role: "BARBER", active: true, consentLGPD: true,
       },
     });
 
-    await prisma.barber.create({
-      data: {
+    const barber = await prisma.barber.upsert({
+      where: { userId: barberUser.id },
+      update: {},
+      create: {
         userId: barberUser.id,
         bio: "Barbeiro especializado em cortes masculinos e degradê",
         specialties: "Corte, Barba, Degradê",
       },
     });
 
-    const barber2User = await prisma.user.create({
-      data: {
+    const barber2User = await prisma.user.upsert({
+      where: { email: "barber2@barberapp.com" },
+      update: {},
+      create: {
         name: "Rafael Oliveira", email: "barber2@barberapp.com", phone: "11977777777",
         password: barberPassword, role: "BARBER", consentLGPD: true,
       },
     });
 
-    const barber2 = await prisma.barber.create({
-      data: {
+    await prisma.barber.upsert({
+      where: { userId: barber2User.id },
+      update: {},
+      create: {
         userId: barber2User.id,
         bio: "Especialista em barboterapia e cortes clássicos",
         specialties: "Barboterapia, Corte Clássico, Hidratação",
       },
     });
 
-    await prisma.user.create({
-      data: {
+    await prisma.user.upsert({
+      where: { email: "cliente@email.com" },
+      update: {},
+      create: {
         name: "João Cliente", email: "cliente@email.com", phone: "11966666666",
         password: clientPassword, role: "CLIENT", active: true, consentLGPD: true,
       },
@@ -70,16 +76,22 @@ export async function GET() {
     ];
 
     for (const service of services) {
-      await prisma.service.create({ data: service });
+      await prisma.service.upsert({
+        where: { name: service.name },
+        update: {},
+        create: service,
+      });
     }
 
     const days = [1, 2, 3, 4, 5, 6];
     const barbers = await prisma.barber.findMany();
-    for (const barber of barbers) {
+    for (const b of barbers) {
       for (const day of days) {
-        await prisma.workingHours.create({
-          data: {
-            barberId: barber.id, dayOfWeek: day,
+        await prisma.workingHours.upsert({
+          where: { barberId_dayOfWeek: { barberId: b.id, dayOfWeek: day } },
+          update: {},
+          create: {
+            barberId: b.id, dayOfWeek: day,
             startTime: "09:00", endTime: "18:00",
             breakStart: "12:00", breakEnd: "13:00", active: true,
           },
