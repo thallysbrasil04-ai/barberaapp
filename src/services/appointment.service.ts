@@ -88,49 +88,77 @@ export async function updateAppointmentStatus(
   return { ok: true, data: appointment };
 }
 
-function getWeekDays() {
-  const days = [];
-  for (let i = 4; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    days.push(d.toISOString().split("T")[0]);
+function getDateRange(period: "today" | "week" | "month" = "today") {
+  const today = new Date();
+  const todayStr = today.toISOString().split("T")[0];
+
+  if (period === "today") {
+    return { start: todayStr, end: todayStr, label: todayStr };
+  }
+
+  if (period === "week") {
+    const start = new Date(today);
+    start.setDate(today.getDate() - 6);
+    return { start: start.toISOString().split("T")[0], end: todayStr, label: "week" };
+  }
+
+  const start = new Date(today.getFullYear(), today.getMonth(), 1);
+  return { start: start.toISOString().split("T")[0], end: todayStr, label: "month" };
+}
+
+function generateDayLabels(start: string, end: string) {
+  const days: { date: string; label: string }[] = [];
+  const startDate = new Date(start + "T12:00:00");
+  const endDate = new Date(end + "T12:00:00");
+  const current = new Date(startDate);
+  while (current <= endDate) {
+    const dateStr = current.toISOString().split("T")[0];
+    const day = current.getDay();
+    const labels = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+    days.push({ date: dateStr, label: labels[day] });
+    current.setDate(current.getDate() + 1);
   }
   return days;
 }
 
-export async function getDashboardMetrics() {
+export async function getDashboardMetrics(period: "today" | "week" | "month" = "today") {
   const today = new Date().toISOString().split("T")[0];
-  const weekDays = getWeekDays();
+  const range = getDateRange(period);
+  const dayLabels = generateDayLabels(range.start, range.end);
+
+  const notCancelled = { status: { notIn: ["CANCELADO", "NAO_COMPARECEU"] } };
+  const periodFilter = { date: { gte: range.start, lte: range.end } };
 
   const [
-    todayAppointments,
     totalClients,
     totalBarbers,
     totalServices,
-    revenueResult,
-    statusCounts,
-    weekData,
-    recentAppointments,
+    todayAppointments,
     todayConfirmed,
+    statusCounts,
+    dayCounts,
+    recentAppointments,
+    revenuePeriod,
+    revenueAll,
+    topServices,
+    barberStats,
     noShowCount,
     cancellationCount,
   ] = await Promise.all([
-    prisma.appointment.count({ where: { date: today, status: { notIn: ["CANCELADO", "NAO_COMPARECEU"] } } }),
     prisma.user.count({ where: { role: "CLIENT" } }),
     prisma.barber.count({ where: { active: true } }),
     prisma.service.count({ where: { active: true } }),
-    prisma.appointment.findMany({
-      where: { status: { notIn: ["CANCELADO", "NAO_COMPARECEU"] } },
-      select: { service: { select: { price: true } } },
-    }),
+    prisma.appointment.count({ where: { date: today, ...notCancelled } }),
+    prisma.appointment.count({ where: { date: today, status: "CONFIRMADO" } }),
     prisma.appointment.groupBy({
       by: ["status"],
       _count: { id: true },
+      where: { ...(period !== "today" ? periodFilter : {}) },
     }),
     Promise.all(
-      weekDays.map((date) =>
+      dayLabels.map((d) =>
         prisma.appointment.count({
-          where: { date, status: { notIn: ["CANCELADO", "NAO_COMPARECEU"] } },
+          where: { date: d.date, ...notCancelled },
         })
       )
     ),
@@ -144,29 +172,72 @@ export async function getDashboardMetrics() {
         service: { select: { id: true, name: true, price: true } },
       },
     }),
-    prisma.appointment.count({ where: { date: today, status: "CONFIRMADO" } }),
+    prisma.appointment.findMany({
+      where: { ...notCancelled, ...periodFilter },
+      select: { service: { select: { price: true } } },
+    }),
+    prisma.appointment.findMany({
+      where: { ...notCancelled },
+      select: { service: { select: { price: true } } },
+    }),
+    prisma.appointment.groupBy({
+      by: ["serviceId"],
+      _count: { id: true },
+      where: { ...notCancelled, ...periodFilter },
+      orderBy: { _count: { id: "desc" } },
+      take: 5,
+    }),
+    prisma.appointment.groupBy({
+      by: ["barberId"],
+      _count: { id: true },
+      where: periodFilter,
+    }),
     prisma.appointment.count({ where: { status: "NAO_COMPARECEU" } }),
     prisma.appointment.count({ where: { status: "CANCELADO" } }),
   ]);
 
-  const revenue = revenueResult.reduce((acc, curr) => acc + curr.service.price, 0);
+  const revenuePeriodTotal = revenuePeriod.reduce((acc, curr) => acc + curr.service.price, 0);
+  const revenueAllTotal = revenueAll.reduce((acc, curr) => acc + curr.service.price, 0);
   const statusMap: Record<string, number> = {};
   statusCounts.forEach((s) => { statusMap[s.status] = s._count.id; });
-  const completionRate = totalClients > 0
-    ? Math.round(((totalClients - noShowCount - cancellationCount) / totalClients) * 100)
+
+  const totalAppointments = Object.values(statusMap).reduce((a, b) => a + b, 0);
+  const completionRate = totalAppointments > 0
+    ? Math.round(((totalAppointments - (statusMap["NAO_COMPARECEU"] || 0) - (statusMap["CANCELADO"] || 0)) / totalAppointments) * 100)
     : 0;
+
+  const topServicesData = await Promise.all(
+    topServices.map(async (s) => {
+      const service = await prisma.service.findUnique({ where: { id: s.serviceId } });
+      return { name: service?.name || "Desconhecido", count: s._count.id };
+    })
+  );
+
+  const barberStatsData = await Promise.all(
+    barberStats.map(async (b) => {
+      const barber = await prisma.barber.findUnique({
+        where: { id: b.barberId },
+        include: { user: { select: { name: true } } },
+      });
+      return { name: barber?.user.name || "Desconhecido", count: b._count.id };
+    })
+  );
 
   return {
     todayAppointments,
+    todayConfirmed,
     totalClients,
     totalBarbers,
     totalServices,
-    revenue,
-    todayConfirmed,
+    revenue: revenuePeriodTotal,
+    revenueAll: revenueAllTotal,
+    period,
     completionRate,
     nextAppointments: recentAppointments,
-    weekData: weekDays.map((date, i) => ({ date, count: weekData[i] })),
+    dayData: dayLabels.map((d, i) => ({ ...d, count: dayCounts[i] })),
     statusDistribution: statusMap,
+    topServices: topServicesData,
+    barberStats: barberStatsData,
     noShowCount,
     cancellationCount,
   };
