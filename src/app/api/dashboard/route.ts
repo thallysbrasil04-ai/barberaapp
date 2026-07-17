@@ -14,7 +14,7 @@ export async function GET(req: Request) {
 
   try {
     const url = new URL(req.url);
-    const period = (url.searchParams.get("period") as "today" | "week" | "month") || "today";
+    const period = (url.searchParams.get("period") as "today" | "week" | "month" | "all") || "today";
     const metrics = await getDashboardMetrics(period);
     return NextResponse.json({ ok: true, data: metrics });
   } catch (e) {

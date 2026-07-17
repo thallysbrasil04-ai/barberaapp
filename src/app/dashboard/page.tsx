@@ -24,7 +24,7 @@ import {
   Award,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { APPOINTMENT_COLORS, APPOINTMENT_LABELS } from "@/constants";
+import { APPOINTMENT_STYLES, APPOINTMENT_LABELS } from "@/constants";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import Link from "next/link";
 import {
@@ -438,7 +438,14 @@ export default function DashboardPage() {
                             <p className="text-[10px] text-neutral-400">{formatDate(apt.date)} às {apt.time}</p>
                           </div>
                         </div>
-                        <Badge className={`${APPOINTMENT_COLORS[apt.status]} text-[10px]`}>
+                        <Badge
+                          style={{
+                            backgroundColor: APPOINTMENT_STYLES[apt.status]?.bg,
+                            color: APPOINTMENT_STYLES[apt.status]?.text,
+                            borderColor: APPOINTMENT_STYLES[apt.status]?.border,
+                          }}
+                          className="text-[10px]"
+                        >
                           {APPOINTMENT_LABELS[apt.status]}
                         </Badge>
                       </div>

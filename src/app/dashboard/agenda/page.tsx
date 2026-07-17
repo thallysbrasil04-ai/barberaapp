@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatDate, formatPhone } from "@/lib/utils";
-import { APPOINTMENT_COLORS, APPOINTMENT_LABELS } from "@/constants";
+import { APPOINTMENT_STYLES, APPOINTMENT_LABELS } from "@/constants";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useToastContext } from "@/providers/toast-provider";
 import { Search, XCircle } from "lucide-react";
@@ -143,7 +143,13 @@ export default function AgendaPage() {
                     )}
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Badge className={APPOINTMENT_COLORS[apt.status]}>
+                    <Badge
+                      style={{
+                        backgroundColor: APPOINTMENT_STYLES[apt.status]?.bg,
+                        color: APPOINTMENT_STYLES[apt.status]?.text,
+                        borderColor: APPOINTMENT_STYLES[apt.status]?.border,
+                      }}
+                    >
                       {APPOINTMENT_LABELS[apt.status]}
                     </Badge>
                     {isClient && apt.status === "AGENDADO" && (

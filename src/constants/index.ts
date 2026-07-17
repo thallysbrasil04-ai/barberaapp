@@ -28,13 +28,13 @@ export const APPOINTMENT_LABELS: Record<string, string> = {
   NAO_COMPARECEU: "Não Compareceu",
 };
 
-export const APPOINTMENT_COLORS: Record<string, string> = {
-  AGENDADO: "bg-blue-100 text-blue-800",
-  CONFIRMADO: "bg-green-100 text-green-800",
-  EM_ANDAMENTO: "bg-yellow-100 text-yellow-800",
-  FINALIZADO: "bg-gray-100 text-gray-800",
-  CANCELADO: "bg-red-100 text-red-800",
-  NAO_COMPARECEU: "bg-orange-100 text-orange-800",
+export const APPOINTMENT_STYLES: Record<string, { bg: string; text: string; border: string }> = {
+  AGENDADO: { bg: "#DBEAFE", text: "#1E40AF", border: "#93C5FD" },
+  CONFIRMADO: { bg: "#DCFCE7", text: "#166534", border: "#86EFAC" },
+  EM_ANDAMENTO: { bg: "#FEF9C3", text: "#854D0E", border: "#FDE68A" },
+  FINALIZADO: { bg: "#F3F4F6", text: "#374151", border: "#D1D5DB" },
+  CANCELADO: { bg: "#FEE2E2", text: "#991B1B", border: "#FCA5A5" },
+  NAO_COMPARECEU: { bg: "#FFEDD5", text: "#9A3412", border: "#FDBA74" },
 };
 
 export const WEEKDAYS = [

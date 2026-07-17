@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
+import { useToastContext } from "@/providers/toast-provider";
 import {
   BarChart,
   Bar,
@@ -30,6 +31,7 @@ const STATUS_PIE_COLORS: Record<string, string> = {
 };
 
 export default function RelatoriosPage() {
+  const { addToast } = useToastContext();
   const [data, setData] = useState<{
     todayAppointments: number;
     todayConfirmed: number;
@@ -52,11 +54,10 @@ export default function RelatoriosPage() {
 
   const loadData = useCallback((p: Period) => {
     setLoading(true);
-    const apiPeriod = p === "all" ? "month" : p;
-    fetch(`/api/dashboard?period=${apiPeriod}`)
+    fetch(`/api/dashboard?period=${p}`)
       .then((r) => r.json())
       .then((d) => { if (d.ok) setData(d.data); })
-      .catch(() => {})
+      .catch(() => addToast("Erro ao carregar relatórios", "error"))
       .finally(() => setLoading(false));
   }, []);
 

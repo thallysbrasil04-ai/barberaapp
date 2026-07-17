@@ -51,7 +51,12 @@ export async function middleware(req: NextRequest) {
   }
 
   if (userRole === "CLIENT") {
-    return NextResponse.redirect(new URL("/agendamento", req.url));
+    if (pathname.startsWith("/dashboard/agenda")) {
+      return NextResponse.next();
+    }
+    if (pathname.startsWith("/dashboard")) {
+      return NextResponse.redirect(new URL("/agendamento", req.url));
+    }
   }
 
   if (userRole === "BARBER") {

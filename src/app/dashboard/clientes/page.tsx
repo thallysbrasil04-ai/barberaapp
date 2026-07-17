@@ -32,19 +32,26 @@ export default function ClientesPage() {
       .then((data) => {
         if (data.ok) setUsers(data.data.users);
       })
+      .catch(() => addToast("Erro ao carregar clientes", "error"))
       .finally(() => setLoading(false));
   }, []);
 
   async function toggleActive(id: string, current: boolean) {
-    const res = await fetch(`/api/users/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ active: !current }),
-    });
-    const data = await res.json();
-    if (data.ok) {
-      setUsers(users.map((u) => (u.id === id ? { ...u, active: !current } : u)));
-      addToast("Status atualizado!", "success");
+    try {
+      const res = await fetch(`/api/users/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ active: !current }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setUsers(users.map((u) => (u.id === id ? { ...u, active: !current } : u)));
+        addToast("Status atualizado!", "success");
+      } else {
+        addToast(data.error || "Erro ao atualizar", "error");
+      }
+    } catch {
+      addToast("Erro de conexão", "error");
     }
   }
 

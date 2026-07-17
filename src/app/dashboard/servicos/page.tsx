@@ -41,6 +41,7 @@ export default function ServicosPage() {
       .then((data) => {
         if (data.ok) setServices(data.data);
       })
+      .catch(() => addToast("Erro ao carregar serviços", "error"))
       .finally(() => setLoading(false));
   }
 
@@ -65,6 +66,21 @@ export default function ServicosPage() {
   }
 
   async function handleSave() {
+    if (!form.name.trim()) {
+      addToast("Nome é obrigatório", "error");
+      return;
+    }
+    const price = parseFloat(form.price);
+    const duration = parseInt(form.duration);
+    if (isNaN(price) || price <= 0) {
+      addToast("Preço inválido", "error");
+      return;
+    }
+    if (isNaN(duration) || duration <= 0) {
+      addToast("Duração inválida", "error");
+      return;
+    }
+
     const url = editing ? `/api/services/${editing.id}` : "/api/services";
     const method = editing ? "PATCH" : "POST";
 
@@ -72,10 +88,10 @@ export default function ServicosPage() {
       method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: form.name,
+        name: form.name.trim(),
         description: form.description || undefined,
-        price: parseFloat(form.price),
-        duration: parseInt(form.duration),
+        price,
+        duration,
         category: form.category,
       }),
     });
@@ -91,15 +107,21 @@ export default function ServicosPage() {
   }
 
   async function toggleActive(id: string, current: boolean) {
-    const res = await fetch(`/api/services/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ active: !current }),
-    });
-    const data = await res.json();
-    if (data.ok) {
-      setServices(services.map((s) => (s.id === id ? { ...s, active: !current } : s)));
-      addToast("Status atualizado!", "success");
+    try {
+      const res = await fetch(`/api/services/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ active: !current }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setServices(services.map((s) => (s.id === id ? { ...s, active: !current } : s)));
+        addToast("Status atualizado!", "success");
+      } else {
+        addToast(data.error || "Erro ao atualizar", "error");
+      }
+    } catch {
+      addToast("Erro de conexão", "error");
     }
   }
 

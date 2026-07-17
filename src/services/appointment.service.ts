@@ -88,7 +88,9 @@ export async function updateAppointmentStatus(
   return { ok: true, data: appointment };
 }
 
-function getDateRange(period: "today" | "week" | "month" = "today") {
+type Period = "today" | "week" | "month" | "all";
+
+function getDateRange(period: Period = "today") {
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
 
@@ -102,8 +104,12 @@ function getDateRange(period: "today" | "week" | "month" = "today") {
     return { start: start.toISOString().split("T")[0], end: todayStr, label: "week" };
   }
 
-  const start = new Date(today.getFullYear(), today.getMonth(), 1);
-  return { start: start.toISOString().split("T")[0], end: todayStr, label: "month" };
+  if (period === "month") {
+    const start = new Date(today.getFullYear(), today.getMonth(), 1);
+    return { start: start.toISOString().split("T")[0], end: todayStr, label: "month" };
+  }
+
+  return { start: "2000-01-01", end: todayStr, label: "all" };
 }
 
 function generateDayLabels(start: string, end: string) {
@@ -121,7 +127,7 @@ function generateDayLabels(start: string, end: string) {
   return days;
 }
 
-export async function getDashboardMetrics(period: "today" | "week" | "month" = "today") {
+export async function getDashboardMetrics(period: Period = "today") {
   const today = new Date().toISOString().split("T")[0];
   const range = getDateRange(period);
   const dayLabels = generateDayLabels(range.start, range.end);
