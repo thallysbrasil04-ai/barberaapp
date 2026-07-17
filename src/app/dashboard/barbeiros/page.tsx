@@ -16,6 +16,7 @@ import {
 import { useToastContext } from "@/providers/toast-provider";
 import { formatPhone } from "@/lib/utils";
 import { WEEKDAYS } from "@/constants";
+import { barberSchema } from "@/validators";
 import { Plus, Loader2, Clock, Ban, Trash2 } from "lucide-react";
 
 interface BarberUser {
@@ -68,6 +69,7 @@ export default function BarbeirosPage() {
       .then((data) => {
         if (data.ok) setBarbers(data.data);
       })
+      .catch(() => addToast("Erro ao carregar barbeiros", "error"))
       .finally(() => setLoading(false));
   }
 
@@ -169,31 +171,48 @@ export default function BarbeirosPage() {
   }
 
   async function handleCreate() {
-    const res = await fetch("/api/barbers", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    const data = await res.json();
-    if (data.ok) {
-      addToast("Barbeiro cadastrado!", "success");
-      setCreateOpen(false);
-      setForm({ name: "", email: "", phone: "", password: "", bio: "", specialties: "" });
-      load();
-    } else {
-      addToast(data.error || "Erro ao cadastrar", "error");
+    const parsed = barberSchema.safeParse(form);
+    if (!parsed.success) {
+      addToast(parsed.error.issues[0].message, "error");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/barbers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(parsed.data),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        addToast("Barbeiro cadastrado!", "success");
+        setCreateOpen(false);
+        setForm({ name: "", email: "", phone: "", password: "", bio: "", specialties: "" });
+        load();
+      } else {
+        addToast(data.error || "Erro ao cadastrar", "error");
+      }
+    } catch {
+      addToast("Erro de conexão", "error");
     }
   }
 
   async function toggleActive(userId: string, current: boolean) {
-    const res = await fetch(`/api/users/${userId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ active: !current }),
-    });
-    if (res.ok) {
-      setBarbers(barbers.map((b) => (b.id === userId ? { ...b, active: !current } : b)));
-      addToast("Status atualizado!", "success");
+    try {
+      const res = await fetch(`/api/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ active: !current }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        setBarbers(barbers.map((b) => (b.id === userId ? { ...b, active: !current } : b)));
+        addToast("Status atualizado!", "success");
+      } else {
+        addToast(data?.error || "Erro ao atualizar", "error");
+      }
+    } catch {
+      addToast("Erro de conexão", "error");
     }
   }
 

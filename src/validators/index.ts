@@ -8,7 +8,7 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
   name: z.string().min(3, "Mínimo de 3 caracteres"),
   email: z.string().email("E-mail inválido"),
-  phone: z.string().regex(/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/, "Telefone inválido"),
+  phone: z.string().min(10, "Telefone deve ter pelo menos 10 dígitos"),
   password: z.string().min(8, "Mínimo de 8 caracteres"),
   confirmPassword: z.string(),
   cpf: z.string().optional(),
@@ -29,7 +29,7 @@ export const serviceSchema = z.object({
 export const barberSchema = z.object({
   name: z.string().min(3, "Mínimo de 3 caracteres"),
   email: z.string().email("E-mail inválido"),
-  phone: z.string().regex(/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/, "Telefone inválido"),
+  phone: z.string().min(10, "Telefone deve ter pelo menos 10 dígitos"),
   password: z.string().min(8, "Mínimo de 8 caracteres"),
   bio: z.string().optional(),
   specialties: z.string().optional(),

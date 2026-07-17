@@ -5,11 +5,18 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { formatDate, formatPhone } from "@/lib/utils";
 import { APPOINTMENT_STYLES, APPOINTMENT_LABELS } from "@/constants";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useToastContext } from "@/providers/toast-provider";
-import { Search, XCircle } from "lucide-react";
+import { Search, XCircle, AlertTriangle, Calendar } from "lucide-react";
 import Link from "next/link";
 
 interface Appointment {
@@ -31,15 +38,19 @@ export default function AgendaPage() {
   const [searchDate, setSearchDate] = useState(new Date().toISOString().split("T")[0]);
 
   const isClient = user?.role === "CLIENT";
+  const [cancelTarget, setCancelTarget] = useState<string | null>(null);
+  const [error, setError] = useState(false);
 
   function loadAppointments(date: string) {
     setLoading(true);
+    setError(false);
     fetch(`/api/appointments?date=${date}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.ok) setAppointments(data.data.appointments);
+        else setError(true);
       })
-      .catch(() => {})
+      .catch(() => { setError(true); addToast("Erro ao carregar agendamentos", "error"); })
       .finally(() => setLoading(false));
   }
 
@@ -48,18 +59,22 @@ export default function AgendaPage() {
   }, [searchDate]);
 
   async function handleCancel(id: string) {
-    if (!confirm("Tem certeza que deseja cancelar este agendamento?")) return;
-    const res = await fetch(`/api/appointments/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "CANCELADO" }),
-    });
-    const data = await res.json();
-    if (data.ok) {
-      addToast("Agendamento cancelado!", "success");
-      loadAppointments(searchDate);
-    } else {
-      addToast("Erro ao cancelar", "error");
+    setCancelTarget(null);
+    try {
+      const res = await fetch(`/api/appointments/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "CANCELADO" }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        addToast("Agendamento cancelado!", "success");
+        loadAppointments(searchDate);
+      } else {
+        addToast(data.error || "Erro ao cancelar", "error");
+      }
+    } catch {
+      addToast("Erro de conexão", "error");
     }
   }
 
@@ -91,7 +106,7 @@ export default function AgendaPage() {
         </div>
       )}
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
           <Input
@@ -101,6 +116,13 @@ export default function AgendaPage() {
             className="pl-10"
           />
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setSearchDate(new Date().toISOString().split("T")[0])}
+        >
+          Hoje
+        </Button>
       </div>
 
       <Card>
@@ -116,9 +138,18 @@ export default function AgendaPage() {
         <CardContent>
           {loading ? (
             <div className="animate-pulse text-neutral-400 text-center py-8">Carregando...</div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto mb-2" />
+              <p className="text-neutral-500">Erro ao carregar agendamentos</p>
+              <Button variant="outline" size="sm" className="mt-3" onClick={() => loadAppointments(searchDate)}>
+                Tentar Novamente
+              </Button>
+            </div>
           ) : appointments.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-neutral-500 mb-4">Nenhum agendamento encontrado</p>
+              <Calendar className="h-8 w-8 text-neutral-300 mx-auto mb-2" />
+              <p className="text-neutral-500 mb-4">Nenhum agendamento para esta data</p>
               {isClient && (
                 <Link href="/agendamento">
                   <Button>Agendar Horário</Button>
@@ -154,7 +185,7 @@ export default function AgendaPage() {
                     </Badge>
                     {isClient && apt.status === "AGENDADO" && (
                       <button
-                        onClick={() => handleCancel(apt.id)}
+                        onClick={() => setCancelTarget(apt.id)}
                         className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1 cursor-pointer"
                       >
                         <XCircle className="h-4 w-4" />
@@ -181,6 +212,24 @@ export default function AgendaPage() {
           )}
         </CardContent>
       </Card>
+      <Dialog open={!!cancelTarget} onOpenChange={(open) => !open && setCancelTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancelar Agendamento</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja cancelar este agendamento? Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-2 justify-end">
+            <Button variant="outline" onClick={() => setCancelTarget(null)}>
+              Manter Agendamento
+            </Button>
+            <Button variant="destructive" onClick={() => cancelTarget && handleCancel(cancelTarget)}>
+              Sim, Cancelar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
