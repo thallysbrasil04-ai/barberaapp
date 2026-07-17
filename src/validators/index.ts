@@ -30,7 +30,7 @@ export const barberSchema = z.object({
   name: z.string().min(3, "Mínimo de 3 caracteres"),
   email: z.string().email("E-mail inválido"),
   phone: z.string().regex(/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/, "Telefone inválido"),
-  password: z.string().min(8, "Mínimo de 8 caracteres").optional().or(z.literal("")),
+  password: z.string().min(8, "Mínimo de 8 caracteres"),
   bio: z.string().optional(),
   specialties: z.string().optional(),
 });
