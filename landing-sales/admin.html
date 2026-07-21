@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BarberApp — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --copper:#d97746;--copper-dark:#b85a30;--copper-light:rgba(217,119,70,0.08);
+  --dark:#0a0a0e;--sidebar:#0c0c12;--border:rgba(0,0,0,0.06);--border-light:rgba(255,255,255,0.06);
+  --text:#2d2d35;--text-secondary:#6b7280;--text-muted:#9ca3af;
+  --bg:#f5f4f2;--white:#fff;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#3b82f6;
+  --radius:10px;--radius-sm:6px;
+  --font:'Inter',-apple-system,sans-serif;--font-mono:'SF Mono','Fira Code',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+
+/* Sidebar */
+.sidebar{width:240px;background:var(--sidebar);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;border-right:1px solid rgba(255,255,255,0.03);transition:transform 0.3s}
+.sidebar-logo{padding:22px 20px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.03)}
+.sidebar-logo svg{width:28px;height:28px}
+.sidebar-logo span{font-size:18px;font-weight:800;color:var(--white);letter-spacing:-0.5px}
+.sidebar-logo span small{color:var(--copper)}
+.sidebar-nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:2px}
+.sidebar-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);font-size:13.5px;font-weight:500;color:rgba(255,255,255,0.35);transition:all 0.2s}
+.sidebar-link svg{width:18px;height:18px;flex-shrink:0}
+.sidebar-link:hover{color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.03)}
+.sidebar-link.active{color:var(--copper);background:rgba(217,119,70,0.08)}
+.sidebar-link.active svg{color:var(--copper)}
+.sidebar-divider{height:1px;background:rgba(255,255,255,0.03);margin:8px 10px}
+.sidebar-user{padding:14px 14px 18px;display:flex;align-items:center;gap:10px;border-top:1px solid rgba(255,255,255,0.03)}
+.sidebar-user-avatar{width:34px;height:34px;border-radius:50%;background:var(--copper);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--white);flex-shrink:0}
+.sidebar-user-info{flex:1;min-width:0}
+.sidebar-user-info strong{display:block;font-size:12.5px;color:var(--white);font-weight:600}
+.sidebar-user-info span{font-size:11px;color:rgba(255,255,255,0.25)}
+
+/* Main */
+.main{flex:1;margin-left:240px;min-width:0}
+.topbar{display:flex;align-items:center;gap:16px;padding:16px 28px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.topbar-search{flex:1;max-width:360px;position:relative}
+.topbar-search input{width:100%;padding:9px 14px 9px 36px;border-radius:8px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-family:var(--font);outline:none;transition:border-color 0.2s}
+.topbar-search input:focus{border-color:var(--copper)}
+.topbar-search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-muted)}
+.topbar-actions{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.topbar-notif{position:relative;width:36px;height:36px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-secondary);cursor:pointer;transition:all 0.2s}
+.topbar-notif:hover{border-color:var(--copper);color:var(--copper)}
+.topbar-notif svg{width:17px;height:17px}
+.topbar-notif-badge{position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:var(--danger);color:var(--white);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.topbar-user{display:flex;align-items:center;gap:8px;cursor:pointer}
+.topbar-user-avatar{width:34px;height:34px;border-radius:50%;background:var(--copper);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--white);flex-shrink:0}
+
+/* Content */
+.content{padding:24px 28px 40px}
+.page-title{font-size:22px;font-weight:700;margin-bottom:4px;letter-spacing:-0.3px}
+.page-sub{font-size:13px;color:var(--text-secondary);margin-bottom:24px}
+
+/* Stats grid */
+.stats-grid{display:grid;gap:14px;margin-bottom:28px}
+.stat-card{padding:20px 22px;background:var(--white);border-radius:var(--radius);border:1px solid var(--border);transition:transform 0.25s,box-shadow 0.25s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.04)}
+.stat-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.stat-card-icon{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-card-icon svg{width:18px;height:18px}
+.stat-card-value{font-size:26px;font-weight:800;letter-spacing:-0.5px;line-height:1}
+.stat-card-label{font-size:12.5px;color:var(--text-secondary);margin-top:4px}
+.stat-card-change{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:100px;display:inline-flex;align-items:center;gap:3px;margin-top:6px}
+.stat-card-change.up{color:var(--success);background:rgba(16,185,129,0.08)}
+.stat-card-change.down{color:var(--danger);background:rgba(239,68,68,0.08)}
+
+/* Grids */
+.content-grid{display:grid;gap:20px;margin-bottom:28px}
+.grid-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden}
+.grid-card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.grid-card-header h3{font-size:15px;font-weight:600}
+.grid-card-action{font-size:12px;color:var(--copper);font-weight:600;cursor:pointer;transition:opacity 0.2s}
+.grid-card-action:hover{opacity:0.7}
+.grid-card-body{padding:0}
+
+/* Table */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{padding:10px 20px;text-align:left;font-weight:600;color:var(--text-secondary);font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px;background:var(--bg);border-bottom:1px solid var(--border)}
+tbody td{padding:12px 20px;border-bottom:1px solid var(--border)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{transition:background 0.15s}
+tbody tr:hover{background:rgba(217,119,70,0.02)}
+.td-client{display:flex;align-items:center;gap:8px}
+.td-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--white);flex-shrink:0}
+.td-service{font-weight:600}
+.td-barber{color:var(--text-secondary);font-size:12px}
+.td-time{font-family:var(--font-mono);font-size:12px;color:var(--text-secondary)}
+.status{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600}
+.status.confirmed{background:rgba(16,185,129,0.08);color:var(--success)}
+.status.pending{background:rgba(245,158,11,0.08);color:var(--warning)}
+.status.in-progress{background:rgba(59,130,246,0.08);color:var(--info)}
+.status.completed{background:rgba(107,114,128,0.08);color:var(--text-muted)}
+.status-dot{width:5px;height:5px;border-radius:50%}
+.status.confirmed .status-dot{background:var(--success)}
+.status.pending .status-dot{background:var(--warning)}
+.status.in-progress .status-dot{background:var(--info)}
+.status.completed .status-dot{background:var(--text-muted)}
+
+/* Chart */
+.chart-area{padding:16px 20px 20px}
+.chart-title{font-size:13px;font-weight:600;margin-bottom:16px;color:var(--text-secondary)}
+.chart-bars{display:flex;align-items:flex-end;gap:8px;height:140px}
+.chart-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.chart-bar{width:100%;max-width:44px;border-radius:4px 4px 0 0;min-height:4px;background:linear-gradient(180deg,var(--copper),var(--copper-dark));transition:height 0.6s cubic-bezier(0.22,1,0.36,1);position:relative}
+.chart-bar-value{font-size:10px;font-weight:600;color:var(--text-secondary);position:absolute;top:-16px;left:50%;transform:translateX(-50%);white-space:nowrap}
+.chart-bar-label{font-size:10px;color:var(--text-muted);text-align:center}
+
+/* Recent clients */
+.recent-list{padding:4px 0}
+.recent-item{display:flex;align-items:center;gap:12px;padding:10px 20px;transition:background 0.15s}
+.recent-item:hover{background:rgba(217,119,70,0.02)}
+.recent-item+.recent-item{border-top:1px solid var(--border)}
+.recent-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--white);flex-shrink:0}
+.recent-info{flex:1;min-width:0}
+.recent-info strong{display:block;font-size:13px;font-weight:600}
+.recent-info span{font-size:11.5px;color:var(--text-secondary)}
+.recent-action{font-size:11px;color:var(--copper);font-weight:600;cursor:pointer;transition:opacity 0.2s;flex-shrink:0}
+.recent-action:hover{opacity:0.7}
+
+/* Mobile */
+.mobile-toggle{display:none;width:36px;height:36px;align-items:center;justify-content:center;border-radius:8px;border:1px solid var(--border);background:none;cursor:pointer;flex-shrink:0;color:var(--text)}
+.mobile-toggle svg{width:18px;height:18px}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .topbar{padding:12px 16px}
+  .content{padding:16px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .mobile-toggle{display:flex}
+  .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99}
+  .sidebar-overlay.show{display:block}
+}
+@media(min-width:640px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1024px){.stats-grid{grid-template-columns:repeat(4,1fr)}.content-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- Sidebar overlay mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <svg viewBox="0 0 60 60" fill="none">
+      <path d="M15 12a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 18a5 5 0 1 0 0 10 5 5 0 0 0 0-10z" fill="#d97746"/>
+      <path d="M38 24l-15-9m15 9l-15 9" stroke="#d97746" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M20 25l15-13 6 5zM20 23l15 13 6-5z" fill="rgba(217,119,70,0.15)"/>
+    </svg>
+    <span>Barber<small>App</small></span>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="#" class="sidebar-link active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <a href="#" class="sidebar-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Agendamentos
+    </a>
+    <a href="#" class="sidebar-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Clientes
+    </a>
+    <a href="#" class="sidebar-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Financeiro
+    </a>
+    <a href="#" class="sidebar-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Equipe
+    </a>
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Configurações
+    </a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="sidebar-user-avatar">AD</div>
+    <div class="sidebar-user-info">
+      <strong>Admin Barber</strong>
+      <span>admin@barberapp.com.br</span>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="topbar-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Buscar cliente, agendamento...">
+    </div>
+    <div class="topbar-actions">
+      <div class="topbar-notif">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="topbar-notif-badge">3</span>
+      </div>
+      <div class="topbar-user">
+        <div class="topbar-user-avatar">AD</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-sub">Visão geral da sua barbearia em tempo real.</p>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-card-icon" style="background:rgba(217,119,70,0.08);color:var(--copper)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+        </div>
+        <div class="stat-card-value">R$ 1.247</div>
+        <div class="stat-card-label">Faturamento hoje</div>
+        <div class="stat-card-change up"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg> 12.5%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-card-icon" style="background:rgba(59,130,246,0.08);color:var(--info)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+        </div>
+        <div class="stat-card-value">23</div>
+        <div class="stat-card-label">Agendamentos hoje</div>
+        <div class="stat-card-change up"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg> 8.2%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-card-icon" style="background:rgba(16,185,129,0.08);color:var(--success)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+        </div>
+        <div class="stat-card-value">847</div>
+        <div class="stat-card-label">Clientes ativos</div>
+        <div class="stat-card-change up"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg> 5.7%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-card-icon" style="background:rgba(245,158,11,0.08);color:var(--warning)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+        </div>
+        <div class="stat-card-value">R$ 54</div>
+        <div class="stat-card-label">Ticket médio</div>
+        <div class="stat-card-change down"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg> 2.1%</div>
+      </div>
+    </div>
+
+    <!-- Grids -->
+    <div class="content-grid">
+      <!-- Appointments Table -->
+      <div class="grid-card">
+        <div class="grid-card-header">
+          <h3>Próximos Agendamentos</h3>
+          <span class="grid-card-action">Ver Todos</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Serviço</th>
+                <th>Barbeiro</th>
+                <th>Horário</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="td-client"><div class="td-avatar" style="background:#25d366">R</div>Ricardo Oliveira</div></td>
+                <td><span class="td-service">Corte Degradê</span></td>
+                <td class="td-barber">Carlos</td>
+                <td class="td-time">14:30</td>
+                <td><span class="status confirmed"><span class="status-dot"></span>Confirmado</span></td>
+              </tr>
+              <tr>
+                <td><div class="td-client"><div class="td-avatar" style="background:#d97746">F</div>Fernando Costa</div></td>
+                <td><span class="td-service">Social Cut + Barba</span></td>
+                <td class="td-barber">André</td>
+                <td class="td-time">15:00</td>
+                <td><span class="status confirmed"><span class="status-dot"></span>Confirmado</span></td>
+              </tr>
+              <tr>
+                <td><div class="td-client"><div class="td-avatar" style="background:#2563eb">L</div>Lucas Mendes</div></td>
+                <td><span class="td-service">Pompadour</span></td>
+                <td class="td-barber">Carlos</td>
+                <td class="td-time">15:30</td>
+                <td><span class="status pending"><span class="status-dot"></span>Pendente</span></td>
+              </tr>
+              <tr>
+                <td><div class="td-client"><div class="td-avatar" style="background:#8b5cf6">M</div>Marcos Silva</div></td>
+                <td><span class="td-service">Barba Completa</span></td>
+                <td class="td-barber">Pedro</td>
+                <td class="td-time">16:00</td>
+                <td><span class="status in-progress"><span class="status-dot"></span>Em Andamento</span></td>
+              </tr>
+              <tr>
+                <td><div class="td-client"><div class="td-avatar" style="background:#ec4899">J</div>Juliana Costa</div></td>
+                <td><span class="td-service">Hidratação Capilar</span></td>
+                <td class="td-barber">André</td>
+                <td class="td-time">16:30</td>
+                <td><span class="status confirmed"><span class="status-dot"></span>Confirmado</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Revenue Chart -->
+      <div class="grid-card">
+        <div class="grid-card-header">
+          <h3>Faturamento Semanal</h3>
+          <span class="grid-card-action">Ver Relatório</span>
+        </div>
+        <div class="chart-area">
+          <div class="chart-bars">
+            <div class="chart-bar-wrap">
+              <div class="chart-bar" style="height:45%"><span class="chart-bar-value">R$ 980</span></div>
+              <span class="chart-bar-label">Seg</span>
+            </div>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar" style="height:62%"><span class="chart-bar-value">R$ 1.340</span></div>
+              <span class="chart-bar-label">Ter</span>
+            </div>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar" style="height:58%"><span class="chart-bar-value">R$ 1.247</span></div>
+              <span class="chart-bar-label">Qua</span>
+            </div>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar" style="height:35%"><span class="chart-bar-value">R$ 760</span></div>
+              <span class="chart-bar-label">Qui</span>
+            </div>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar" style="height:78%"><span class="chart-bar-value">R$ 1.680</span></div>
+              <span class="chart-bar-label">Sex</span>
+            </div>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar" style="height:92%"><span class="chart-bar-value">R$ 1.980</span></div>
+              <span class="chart-bar-label">Sáb</span>
+            </div>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar" style="height:18%"><span class="chart-bar-value">R$ 390</span></div>
+              <span class="chart-bar-label">Dom</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Clients -->
+    <div class="grid-card">
+      <div class="grid-card-header">
+        <h3>Clientes Recentes</h3>
+        <span class="grid-card-action">Ver Todos</span>
+      </div>
+      <div class="recent-list">
+        <div class="recent-item">
+          <div class="recent-avatar" style="background:#25d366">RM</div>
+          <div class="recent-info">
+            <strong>Ricardo Mendes</strong>
+            <span>Última visita: hoje às 10:30</span>
+          </div>
+          <span class="recent-action">Agendar</span>
+        </div>
+        <div class="recent-item">
+          <div class="recent-avatar" style="background:#d97746">FP</div>
+          <div class="recent-info">
+            <strong>Felipe Pereira</strong>
+            <span>Última visita: ontem às 16:00</span>
+          </div>
+          <span class="recent-action">Agendar</span>
+        </div>
+        <div class="recent-item">
+          <div class="recent-avatar" style="background:#2563eb">AS</div>
+          <div class="recent-info">
+            <strong>Ana Souza</strong>
+            <span>Última visita: 2 dias atrás</span>
+          </div>
+          <span class="recent-action">Agendar</span>
+        </div>
+        <div class="recent-item">
+          <div class="recent-avatar" style="background:#8b5cf6">PL</div>
+          <div class="recent-info">
+            <strong>Paulo Lima</strong>
+            <span>Última visita: 3 dias atrás</span>
+          </div>
+          <span class="recent-action">Agendar</span>
+        </div>
+        <div class="recent-item">
+          <div class="recent-avatar" style="background:#ec4899">CG</div>
+          <div class="recent-info">
+            <strong>Camila Gomes</strong>
+            <span>Última visita: 5 dias atrás</span>
+          </div>
+          <span class="recent-action">Agendar</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Mobile sidebar toggle
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebarOverlay');
+document.getElementById('mobileToggle').addEventListener('click', () => {
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('show');
+});
+overlay.addEventListener('click', () => {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('show');
+});
+
+// Animate stat values on load
+document.addEventListener('DOMContentLoaded', () => {
+  const values = document.querySelectorAll('.stat-card-value');
+  values.forEach(el => {
+    const text = el.textContent;
+    const isMoney = text.startsWith('R$');
+    const isPercent = text.includes('.');
+    const isNumber = !isMoney && !isPercent;
+    const raw = text.replace(/[R$\s.,]/g, '');
+    const target = parseInt(raw);
+    if (!target) return;
+    let current = 0;
+    const step = Math.max(1, Math.floor(target / 40));
+    el.textContent = isMoney ? 'R$ 0' : '0';
+    const timer = setInterval(() => {
+      current += step;
+      if (current >= target) {
+        current = target;
+        clearInterval(timer);
+      }
+      if (isMoney) el.textContent = 'R$ ' + current.toLocaleString('pt-BR');
+      else el.textContent = current.toLocaleString('pt-BR');
+    }, 20);
+  });
+});
+</script>
+</body>
+</html>
