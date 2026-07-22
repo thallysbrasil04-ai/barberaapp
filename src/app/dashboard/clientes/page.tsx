@@ -25,16 +25,29 @@ export default function ClientesPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
-  useEffect(() => {
-    fetch("/api/users?role=CLIENT")
+  function loadUsers(p: number) {
+    setLoading(true);
+    fetch(`/api/users?role=CLIENT&page=${p}&limit=20`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.ok) setUsers(data.data.users);
+        if (data.ok) {
+          setUsers(data.data.users);
+          setTotalPages(data.data.totalPages);
+          setTotal(data.data.total);
+        }
       })
       .catch(() => addToast("Erro ao carregar clientes", "error"))
       .finally(() => setLoading(false));
-  }, []);
+  }
+
+  useEffect(() => {
+    loadUsers(page);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   async function toggleActive(id: string, current: boolean) {
     try {
@@ -78,7 +91,7 @@ export default function ClientesPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Clientes ({filtered.length})</CardTitle>
+          <CardTitle>Clientes ({total})</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -115,6 +128,32 @@ export default function ClientesPage() {
           )}
         </CardContent>
       </Card>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-neutral-500">
+            Página {page} de {totalPages}
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+            >
+              Próxima
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

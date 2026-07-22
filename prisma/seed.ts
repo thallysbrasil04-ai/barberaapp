@@ -1,14 +1,23 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { randomBytes } from "crypto";
 
 const prisma = new PrismaClient();
+
+function generatePassword(): string {
+  return randomBytes(12).toString("base64url") + "A1!";
+}
 
 async function main() {
   console.log("🌱 Iniciando seed...");
 
-  const adminPassword = await bcrypt.hash("admin123", 10);
-  const barberPassword = await bcrypt.hash("barber123", 10);
-  const clientPassword = await bcrypt.hash("client123", 10);
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD || generatePassword();
+  const barberPassword = process.env.SEED_BARBER_PASSWORD || generatePassword();
+  const clientPassword = process.env.SEED_CLIENT_PASSWORD || generatePassword();
+
+  const adminHashed = await bcrypt.hash(adminPassword, 10);
+  const barberHashed = await bcrypt.hash(barberPassword, 10);
+  const clientHashed = await bcrypt.hash(clientPassword, 10);
 
   const admin = await prisma.user.upsert({
     where: { email: "admin@barberapp.com" },
@@ -17,7 +26,7 @@ async function main() {
       name: "Admin",
       email: "admin@barberapp.com",
       phone: "11999999999",
-      password: adminPassword,
+      password: adminHashed,
       role: "ADMIN",
       active: true,
       consentLGPD: true,
@@ -31,7 +40,7 @@ async function main() {
       name: "Carlos Silva",
       email: "barber@barberapp.com",
       phone: "11988888888",
-      password: barberPassword,
+      password: barberHashed,
       role: "BARBER",
       active: true,
       consentLGPD: true,
@@ -55,7 +64,7 @@ async function main() {
       name: "Rafael Oliveira",
       email: "barber2@barberapp.com",
       phone: "11977777777",
-      password: barberPassword,
+      password: barberHashed,
       role: "BARBER",
       consentLGPD: true,
     },
@@ -78,7 +87,7 @@ async function main() {
       name: "João Cliente",
       email: "cliente@email.com",
       phone: "11966666666",
-      password: clientPassword,
+      password: clientHashed,
       role: "CLIENT",
       active: true,
       consentLGPD: true,
@@ -124,9 +133,14 @@ async function main() {
   }
 
   console.log("✅ Seed concluído!");
-  console.log("   Admin: admin@barberapp.com / admin123");
-  console.log("   Barber: barber@barberapp.com / barber123");
-  console.log("   Client: cliente@email.com / client123");
+  console.log("   Admin: admin@barberapp.com");
+  console.log("   Barber: barber@barberapp.com");
+  console.log("   Client: cliente@email.com");
+  if (process.env.SEED_ADMIN_PASSWORD) {
+    console.log("   Senhas definidas via variáveis de ambiente.");
+  } else {
+    console.log("   ⚠️  Senhas geradas aleatoriamente. Defina SEED_*_PASSWORD para controlar.");
+  }
 }
 
 main()

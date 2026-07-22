@@ -253,7 +253,14 @@ export default function AgendamentoPage() {
     if (selectedBarber && selectedDate) {
       setLoadingSlots(true);
       setSelectedTime("");
-      fetch(`/api/appointments/available-slots?barberId=${selectedBarber.barber?.id}&date=${selectedDate}`)
+      const params = new URLSearchParams({
+        barberId: selectedBarber.barber?.id || "",
+        date: selectedDate,
+      });
+      if (selectedService) {
+        params.set("serviceId", selectedService.id);
+      }
+      fetch(`/api/appointments/available-slots?${params}`)
         .then((r) => r.json())
         .then((d) => {
           if (d.ok) setSlots(d.data);
@@ -262,7 +269,7 @@ export default function AgendamentoPage() {
         .catch(() => setSlots([]))
         .finally(() => setLoadingSlots(false));
     }
-  }, [selectedBarber, selectedDate]);
+  }, [selectedBarber, selectedDate, selectedService]);
 
   async function handleConfirm() {
     if (!selectedService || !selectedBarber || !selectedDate || !selectedTime) return;

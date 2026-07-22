@@ -29,7 +29,7 @@ export async function POST() {
 
     await prisma.appointment.updateMany({
       where: { userId },
-      data: { notes: "Usuário removido", userId },
+      data: { notes: "Usuário removido" },
     });
 
     return NextResponse.json({ ok: true, message: "Dados anonimizados com sucesso" });

@@ -73,6 +73,7 @@ export default function BarbeirosPage() {
       .finally(() => setLoading(false));
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, []);
 
   async function openHours(barber: BarberUser) {
@@ -160,13 +161,19 @@ export default function BarbeirosPage() {
   async function removeBlockedDate(dateId: string) {
     if (!hoursOpen?.barber) return;
 
-    const res = await fetch(`/api/barbers/${hoursOpen.barber.id}/blocked-dates/${dateId}`, {
-      method: "DELETE",
-    });
-
-    if (res.ok) {
-      setBlockedDates(blockedDates.filter((d) => d.id !== dateId));
-      addToast("Data desbloqueada!", "success");
+    try {
+      const res = await fetch(`/api/barbers/${hoursOpen.barber.id}/blocked-dates/${dateId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setBlockedDates(blockedDates.filter((d) => d.id !== dateId));
+        addToast("Data desbloqueada!", "success");
+      } else {
+        addToast(data.error || "Erro ao desbloquear data", "error");
+      }
+    } catch {
+      addToast("Erro de conexão", "error");
     }
   }
 

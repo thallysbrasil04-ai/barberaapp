@@ -36,27 +36,32 @@ export default function AgendaPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchDate, setSearchDate] = useState(new Date().toISOString().split("T")[0]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const isClient = user?.role === "CLIENT";
   const [cancelTarget, setCancelTarget] = useState<string | null>(null);
   const [error, setError] = useState(false);
 
-  function loadAppointments(date: string) {
+  function loadAppointments(date: string, p: number) {
     setLoading(true);
     setError(false);
-    fetch(`/api/appointments?date=${date}`)
+    fetch(`/api/appointments?date=${date}&page=${p}&limit=50`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.ok) setAppointments(data.data.appointments);
-        else setError(true);
+        if (data.ok) {
+          setAppointments(data.data.appointments);
+          setTotalPages(data.data.totalPages || 1);
+        } else setError(true);
       })
       .catch(() => { setError(true); addToast("Erro ao carregar agendamentos", "error"); })
       .finally(() => setLoading(false));
   }
 
   useEffect(() => {
-    loadAppointments(searchDate);
-  }, [searchDate]);
+    loadAppointments(searchDate, page);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchDate, page]);
 
   async function handleCancel(id: string) {
     setCancelTarget(null);
@@ -69,7 +74,7 @@ export default function AgendaPage() {
       const data = await res.json();
       if (data.ok) {
         addToast("Agendamento cancelado!", "success");
-        loadAppointments(searchDate);
+        loadAppointments(searchDate, page);
       } else {
         addToast(data.error || "Erro ao cancelar", "error");
       }
@@ -88,7 +93,7 @@ export default function AgendaPage() {
       const data = await res.json();
       if (data.ok) {
         addToast("Status atualizado!", "success");
-        loadAppointments(searchDate);
+        loadAppointments(searchDate, page);
       } else {
         addToast(data.error || "Erro ao atualizar", "error");
       }
@@ -123,7 +128,7 @@ export default function AgendaPage() {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setSearchDate(new Date().toISOString().split("T")[0])}
+          onClick={() => { setSearchDate(new Date().toISOString().split("T")[0]); setPage(1); }}
         >
           Hoje
         </Button>
@@ -146,7 +151,7 @@ export default function AgendaPage() {
             <div className="text-center py-8">
               <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto mb-2" />
               <p className="text-neutral-500">Erro ao carregar agendamentos</p>
-              <Button variant="outline" size="sm" className="mt-3" onClick={() => loadAppointments(searchDate)}>
+              <Button variant="outline" size="sm" className="mt-3" onClick={() => loadAppointments(searchDate, page)}>
                 Tentar Novamente
               </Button>
             </div>
@@ -216,6 +221,33 @@ export default function AgendaPage() {
           )}
         </CardContent>
       </Card>
+
+      {totalPages > 1 && !loading && !error && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-neutral-500">
+            Página {page} de {totalPages}
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+            >
+              Próxima
+            </Button>
+          </div>
+        </div>
+      )}
+
       <Dialog open={!!cancelTarget} onOpenChange={(open) => !open && setCancelTarget(null)}>
         <DialogContent>
           <DialogHeader>

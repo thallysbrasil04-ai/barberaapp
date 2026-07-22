@@ -1,13 +1,14 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
-const publicRoutes = ["/", "/login", "/register", "/agendamento", "/privacidade"];
+const publicRoutes = ["/", "/login", "/register", "/agendamento", "/privacidade", "/landing.html"];
 
 const publicApiPrefixes = [
   "/api/auth",
   "/api/services",
   "/api/barbers",
   "/api/appointments/available-slots",
+  "/api/leads",
 ];
 
 export async function middleware(req: NextRequest) {
@@ -25,10 +26,12 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  const isSecure = req.nextUrl.protocol === "https:";
+  const cookieName = isSecure ? "__Secure-authjs.session-token" : "authjs.session-token";
   const token = await getToken({
     req,
     secret: process.env.AUTH_SECRET,
-    cookieName: "__Secure-authjs.session-token",
+    cookieName,
   });
   const isAuthenticated = !!token;
   const userRole = token?.role as string | undefined;

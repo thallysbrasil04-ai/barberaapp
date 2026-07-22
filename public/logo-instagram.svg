@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#14141a"/>
+      <stop offset="100%" stop-color="#0a0a0e"/>
+    </linearGradient>
+    <linearGradient id="copper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e08556"/>
+      <stop offset="30%" stop-color="#d97746"/>
+      <stop offset="100%" stop-color="#b85a30"/>
+    </linearGradient>
+    <linearGradient id="cream" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e8d5c8"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#d97746" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Dark rounded square background -->
+  <rect x="20" y="20" width="460" height="460" rx="100" fill="url(#bg)" stroke="rgba(217,119,70,0.15)" stroke-width="2"/>
+
+  <!-- Inner subtle ring -->
+  <rect x="40" y="40" width="420" height="420" rx="80" fill="none" stroke="rgba(217,119,70,0.05)" stroke-width="1"/>
+
+  <!-- Barber scissors -- refined -->
+  <g transform="translate(250,235)" filter="url(#shadow)">
+    <!-- Left blade -->
+    <path d="M-18 -52 Q-40 -18 -60 12 Q-66 24 -55 30 Q-44 34 -35 24 Q-18 4 -5 -8 Q5 -16 8 -18" fill="none" stroke="url(#copper)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Right blade -->
+    <path d="M18 -52 Q40 -18 60 12 Q66 24 55 30 Q44 34 35 24 Q18 4 5 -8 Q-5 -16 -8 -18" fill="none" stroke="url(#copper)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Inner blade highlight -- left -->
+    <path d="M-16 -48 Q-36 -16 -54 10" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-linecap="round"/>
+    <!-- Inner blade highlight -- right -->
+    <path d="M16 -48 Q36 -16 54 10" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-linecap="round"/>
+    <!-- Pivot screw -->
+    <circle cx="0" cy="-14" r="9" fill="url(#copper)"/>
+    <circle cx="0" cy="-14" r="4" fill="#14141a"/>
+    <rect x="-3" y="-17" width="6" height="6" rx="1.5" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.8" transform="rotate(45 -0 -14)"/>
+    <!-- Finger rest left -->
+    <circle cx="-26" cy="-58" r="13" fill="none" stroke="url(#copper)" stroke-width="5"/>
+    <circle cx="-26" cy="-58" r="13" fill="rgba(217,119,70,0.08)" stroke="none"/>
+    <!-- Finger rest right -->
+    <circle cx="26" cy="-58" r="13" fill="none" stroke="url(#copper)" stroke-width="5"/>
+    <circle cx="26" cy="-58" r="13" fill="rgba(217,119,70,0.08)" stroke="none"/>
+  </g>
+
+  <!-- Subtle comb below scissors -->
+  <g transform="translate(250,325)" opacity="0.4">
+    <rect x="-40" y="0" width="80" height="3" rx="1.5" fill="url(#copper)"/>
+    <rect x="-40" y="6" width="80" height="3" rx="1.5" fill="url(#copper)"/>
+    <rect x="-40" y="12" width="80" height="3" rx="1.5" fill="url(#copper)"/>
+    <rect x="-40" y="18" width="80" height="3" rx="1.5" fill="url(#copper)"/>
+    <!-- Comb teeth -->
+    <rect x="-40" y="0" width="3" height="26" rx="1" fill="url(#copper)"/>
+    <rect x="-30" y="0" width="3" height="26" rx="1" fill="url(#copper)"/>
+    <rect x="-20" y="0" width="3" height="26" rx="1" fill="url(#copper)"/>
+    <rect x="-10" y="0" width="3" height="26" rx="1" fill="url(#copper)"/>
+    <rect x="0" y="0" width="3" height="26" rx="1" fill="url(#copper)"/>
+    <rect x="10" y="0" width="3" height="26" rx="1" fill="url(#copper)"/>
+    <rect x="20" y="0" width="3" height="26" rx="1" fill="url(#copper)"/>
+    <rect x="30" y="0" width="3" height="26" rx="1" fill="url(#copper)"/>
+  </g>
+
+  <!-- Top highlight -->
+  <ellipse cx="250" cy="45" rx="160" ry="8" fill="rgba(217,119,70,0.08)"/>
+</svg>

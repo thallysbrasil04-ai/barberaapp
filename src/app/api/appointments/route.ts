@@ -13,12 +13,14 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const date = url.searchParams.get("date");
     const status = url.searchParams.get("status") || undefined;
+    const page = parseInt(url.searchParams.get("page") || "1", 10);
+    const limit = parseInt(url.searchParams.get("limit") || "50", 10);
 
     if (!date) {
       return NextResponse.json({ ok: false, error: "Data é obrigatória" }, { status: 400 });
     }
 
-    const filters: Record<string, unknown> = { date, status };
+    const filters: Record<string, unknown> = { date, status, page, limit };
     if (session.user.role === "BARBER" && session.user.barberId) {
       filters.barberId = session.user.barberId;
     }

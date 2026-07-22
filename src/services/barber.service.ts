@@ -104,7 +104,7 @@ export async function upsertWorkingHours(
   });
 }
 
-export async function getAvailableSlots(barberId: string, date: string) {
+export async function getAvailableSlots(barberId: string, date: string, duration = 30) {
   const barber = await prisma.barber.findUnique({
     where: { id: barberId },
     include: { workingHours: { where: { active: true } } },
@@ -150,7 +150,7 @@ export async function getAvailableSlots(barberId: string, date: string) {
   let current = startH * 60 + startM;
   const end = endH * 60 + endM;
 
-  while (current < end) {
+  while (current + duration <= end) {
     if (breakStartMin >= 0 && current >= breakStartMin && current < breakEndMin) {
       current = breakEndMin;
       continue;
