@@ -11,10 +11,8 @@ import {
   DollarSign,
   Clock,
   TrendingUp,
-  TrendingDown,
-  AlertCircle,
-  CheckCircle2,
   XCircle,
+  CheckCircle2,
   ArrowRight,
   Plus,
   BarChart3,
@@ -23,6 +21,7 @@ import {
   Award,
   Store,
   FileBarChart,
+  Sparkles,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { APPOINTMENT_STYLES, APPOINTMENT_LABELS } from "@/constants";
@@ -38,8 +37,6 @@ import {
   PieChart as RPieChart,
   Pie,
   Cell,
-  AreaChart,
-  Area,
 } from "recharts";
 
 type Period = "today" | "week" | "month";
@@ -86,7 +83,7 @@ const STATUS_PIE_COLORS: Record<string, string> = {
   EM_ANDAMENTO: "#EAB308",
 };
 
-const CHART_COLORS = ["#DC2626", "#F97316", "#EAB308", "#22C55E", "#3B82F6", "#8B5CF6"];
+const CHART_COLORS = ["#d97746", "#F97316", "#EAB308", "#22C55E", "#3B82F6", "#8B5CF6"];
 
 export default function DashboardPage() {
   const user = useCurrentUser();
@@ -112,11 +109,11 @@ export default function DashboardPage() {
   if (isClient) {
     return (
       <div className="max-w-lg mx-auto text-center py-12">
-        <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Calendar className="h-8 w-8 text-neutral-600" />
+        <div className="w-16 h-16 bg-primary-light rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <Sparkles className="h-8 w-8 text-primary" />
         </div>
         <h2 className="text-2xl font-bold mb-2">Bem-vindo, {user?.name}!</h2>
-        <p className="text-neutral-600 mb-6">Acompanhe seus agendamentos ou agende um novo horário.</p>
+        <p className="text-stone-600 mb-6">Acompanhe seus agendamentos ou agende um novo horário.</p>
         <div className="flex gap-4 justify-center">
           <Link href="/dashboard/agenda"><Button>Meus Agendamentos</Button></Link>
           <Link href="/agendamento"><Button variant="outline">Novo Agendamento</Button></Link>
@@ -166,28 +163,25 @@ export default function DashboardPage() {
     color: STATUS_PIE_COLORS[key] || "#A3A3A3",
   }));
 
-  const maxDayCount = Math.max(...(data?.dayData.map((d) => d.count) || [1]), 1);
-
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-neutral-900">Dashboard</h2>
-          <p className="text-sm text-neutral-500">
+          <h2 className="text-2xl font-bold text-foreground">Dashboard</h2>
+          <p className="text-sm text-stone-500">
             {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex bg-neutral-100 rounded-lg p-0.5">
+          <div className="flex bg-stone-100 rounded-lg p-0.5">
             {PERIODS.map((p) => (
               <button
                 key={p.key}
                 onClick={() => setPeriod(p.key)}
                 className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all cursor-pointer ${
                   period === p.key
-                    ? "bg-white text-red-600 shadow-sm"
-                    : "text-neutral-500 hover:text-neutral-700"
+                    ? "bg-white text-primary shadow-sm"
+                    : "text-stone-500 hover:text-stone-700"
                 }`}
               >
                 {p.label}
@@ -207,45 +201,43 @@ export default function DashboardPage() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-pulse">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 animate-pulse">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-28 bg-neutral-200 rounded-xl" />
+            <div key={i} className="h-28 bg-stone-200 rounded-xl" />
           ))}
         </div>
       ) : !data ? (
-        <p className="text-neutral-500">Erro ao carregar dados.</p>
+        <p className="text-stone-500">Erro ao carregar dados.</p>
       ) : (
         <>
-          {/* KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {kpis.map((kpi) => (
-              <Card key={kpi.label} className="border-t-4 border-t-red-600 hover:shadow-lg transition-shadow">
+              <Card key={kpi.label}>
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between mb-3">
-                    <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
-                      <kpi.icon className="h-5 w-5 text-red-600" />
+                    <div className="w-10 h-10 bg-primary-light rounded-lg flex items-center justify-center">
+                      <kpi.icon className="h-5 w-5 text-primary" />
                     </div>
+                    <Badge variant="outline" className="text-[10px]">{kpi.sub}</Badge>
                   </div>
-                  <p className="text-2xl font-bold text-neutral-900">{kpi.value}</p>
-                  <p className="text-xs text-neutral-500 mt-1">{kpi.sub}</p>
+                  <p className="text-2xl font-bold text-foreground">{kpi.value}</p>
+                  <p className="text-xs text-stone-500 mt-1">{kpi.label}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          {/* Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Daily Bar Chart */}
             <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <BarChart3 className="h-4 w-4 text-red-600" />
+                  <BarChart3 className="h-4 w-4 text-primary" />
                   Agendamentos por Dia
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {data.dayData.length === 0 ? (
-                  <p className="text-neutral-400 text-sm text-center py-8">Sem dados no período</p>
+                  <p className="text-stone-400 text-sm text-center py-8">Sem dados no período</p>
                 ) : (
                   <div className="h-52">
                     <ResponsiveContainer width="100%" height="100%">
@@ -271,9 +263,9 @@ export default function DashboardPage() {
                           }}
                           labelFormatter={(label) => `Dia: ${label}`}
                         />
-                        <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={40}>
+                        <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={40}>
                           {data.dayData.map((_, i) => (
-                            <Cell key={i} fill={i === data.dayData.length - 1 ? "#DC2626" : "#FCA5A5"} />
+                            <Cell key={i} fill={i === data.dayData.length - 1 ? "#d97746" : "#fbd7c0"} />
                           ))}
                         </Bar>
                       </BarChart>
@@ -283,17 +275,16 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            {/* Status Distribution Pie */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <PieChart className="h-4 w-4 text-red-600" />
+                  <PieChart className="h-4 w-4 text-primary" />
                   Status
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {statusPieData.length === 0 ? (
-                  <p className="text-neutral-400 text-sm text-center py-8">Nenhum agendamento</p>
+                  <p className="text-stone-400 text-sm text-center py-8">Nenhum agendamento</p>
                 ) : (
                   <div className="flex flex-col items-center">
                     <div className="h-44">
@@ -325,8 +316,8 @@ export default function DashboardPage() {
                       {statusPieData.map((s) => (
                         <div key={s.name} className="flex items-center gap-2 text-xs">
                           <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
-                          <span className="text-neutral-600">{s.name}</span>
-                          <span className="font-semibold text-neutral-800 ml-auto">{s.value}</span>
+                          <span className="text-stone-600">{s.name}</span>
+                          <span className="font-semibold text-stone-800 ml-auto">{s.value}</span>
                         </div>
                       ))}
                     </div>
@@ -336,40 +327,38 @@ export default function DashboardPage() {
             </Card>
           </div>
 
-          {/* Bottom Row */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Top Services */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <Award className="h-4 w-4 text-red-600" />
+                  <Award className="h-4 w-4 text-primary" />
                   Serviços Mais Pedidos
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {data.topServices.length === 0 ? (
-                  <p className="text-neutral-400 text-sm text-center py-4">Nenhum dado no período</p>
+                  <p className="text-stone-400 text-sm text-center py-4">Nenhum dado no período</p>
                 ) : (
                   <div className="space-y-3">
                     {data.topServices.map((svc, i) => (
                       <div key={svc.name} className="flex items-center gap-3">
                         <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white ${
-                          i === 0 ? "bg-red-600" : i === 1 ? "bg-orange-500" : i === 2 ? "bg-amber-500" : "bg-neutral-400"
+                          i === 0 ? "bg-primary" : i === 1 ? "bg-orange-500" : i === 2 ? "bg-amber-500" : "bg-stone-400"
                         }`}>
                           {i + 1}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-neutral-900 truncate">{svc.name}</p>
-                          <div className="w-full h-1.5 bg-neutral-100 rounded-full mt-1">
+                          <p className="text-sm font-medium text-foreground truncate">{svc.name}</p>
+                          <div className="w-full h-1.5 bg-stone-100 rounded-full mt-1">
                             <div
-                              className="h-full bg-red-500 rounded-full"
+                              className="h-full bg-primary rounded-full"
                               style={{
                                 width: `${(svc.count / Math.max(...data.topServices.map((s) => s.count), 1)) * 100}%`,
                               }}
                             />
                           </div>
                         </div>
-                        <span className="text-sm font-bold text-neutral-700">{svc.count}</span>
+                        <span className="text-sm font-bold text-stone-700">{svc.count}</span>
                       </div>
                     ))}
                   </div>
@@ -377,36 +366,35 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            {/* Barber Performance */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <User className="h-4 w-4 text-red-600" />
+                  <User className="h-4 w-4 text-primary" />
                   Atendimentos por Barbeiro
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {data.barberStats.length === 0 ? (
-                  <p className="text-neutral-400 text-sm text-center py-4">Nenhum dado no período</p>
+                  <p className="text-stone-400 text-sm text-center py-4">Nenhum dado no período</p>
                 ) : (
                   <div className="space-y-3">
                     {data.barberStats.map((b, i) => (
                       <div key={b.name} className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                           {b.name.charAt(0)}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-neutral-900 truncate">{b.name}</p>
-                          <div className="w-full h-1.5 bg-neutral-100 rounded-full mt-1">
+                          <p className="text-sm font-medium text-foreground truncate">{b.name}</p>
+                          <div className="w-full h-1.5 bg-stone-100 rounded-full mt-1">
                             <div
-                              className="h-full bg-red-500 rounded-full"
+                              className="h-full bg-primary rounded-full"
                               style={{
                                 width: `${(b.count / Math.max(...data.barberStats.map((s) => s.count), 1)) * 100}%`,
                               }}
                             />
                           </div>
                         </div>
-                        <span className="text-sm font-bold text-neutral-700">{b.count}</span>
+                        <span className="text-sm font-bold text-stone-700">{b.count}</span>
                       </div>
                     ))}
                   </div>
@@ -414,29 +402,28 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            {/* Next Appointments */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <Clock className="h-4 w-4 text-red-600" />
+                  <Clock className="h-4 w-4 text-primary" />
                   Próximos
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {data.nextAppointments.length === 0 ? (
-                  <p className="text-neutral-400 text-sm text-center py-6">Nenhum agendamento futuro</p>
+                  <p className="text-stone-400 text-sm text-center py-6">Nenhum agendamento futuro</p>
                 ) : (
                   <div className="space-y-2.5">
                     {data.nextAppointments.map((apt) => (
-                      <div key={apt.id} className="flex items-center justify-between p-2.5 rounded-lg bg-neutral-50 hover:bg-red-50 transition-colors border border-neutral-100">
+                      <div key={apt.id} className="flex items-center justify-between p-2.5 rounded-lg bg-stone-50 hover:bg-primary-light transition-colors border border-stone-100">
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-8 h-8 rounded-full bg-neutral-200 flex items-center justify-center text-xs font-bold text-neutral-600 flex-shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0">
                             {apt.user.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="min-w-0">
-                            <p className="font-semibold text-xs text-neutral-900 truncate">{apt.user.name}</p>
-                            <p className="text-[10px] text-neutral-500 truncate">{apt.service.name}</p>
-                            <p className="text-[10px] text-neutral-400">{formatDate(apt.date)} às {apt.time}</p>
+                            <p className="font-semibold text-xs text-foreground truncate">{apt.user.name}</p>
+                            <p className="text-[10px] text-stone-500 truncate">{apt.service.name}</p>
+                            <p className="text-[10px] text-stone-400">{formatDate(apt.date)} às {apt.time}</p>
                           </div>
                         </div>
                         <Badge
@@ -463,26 +450,25 @@ export default function DashboardPage() {
             </Card>
           </div>
 
-          {/* Revenue Section */}
           {data.dayData.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <DollarSign className="h-4 w-4 text-red-600" />
+                  <DollarSign className="h-4 w-4 text-primary" />
                   Faturamento
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap items-center gap-6">
                   <div>
-                    <p className="text-xs text-neutral-500">Período atual</p>
-                    <p className="text-3xl font-bold text-neutral-900">{formatCurrency(data.revenue)}</p>
+                    <p className="text-xs text-stone-500">Período atual</p>
+                    <p className="text-3xl font-bold text-foreground">{formatCurrency(data.revenue)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-neutral-500">Histórico total</p>
-                    <p className="text-xl font-semibold text-neutral-600">{formatCurrency(data.revenueAll)}</p>
+                    <p className="text-xs text-stone-500">Histórico total</p>
+                    <p className="text-xl font-semibold text-stone-600">{formatCurrency(data.revenueAll)}</p>
                   </div>
-                  <div className="text-xs text-neutral-400 ml-auto">
+                  <div className="text-xs text-stone-400 ml-auto">
                     * Apenas agendamentos não cancelados
                   </div>
                 </div>
@@ -490,7 +476,6 @@ export default function DashboardPage() {
             </Card>
           )}
 
-          {/* Quick Actions */}
           <div className="flex flex-wrap gap-2">
             <Link href="/dashboard/agenda"><Button variant="outline" size="sm"><Calendar className="h-4 w-4" />Agenda</Button></Link>
             <Link href="/dashboard/barbeiros"><Button variant="outline" size="sm"><Scissors className="h-4 w-4" />Barbeiros</Button></Link>

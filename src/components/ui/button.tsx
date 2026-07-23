@@ -4,16 +4,16 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
   {
     variants: {
       variant: {
-        default: "bg-red-600 text-white shadow-sm hover:bg-red-700 active:bg-red-800",
-        destructive: "bg-red-700 text-white shadow-sm hover:bg-red-800",
-        outline: "border border-red-200 bg-white text-neutral-800 shadow-sm hover:bg-red-50 hover:border-red-300",
+        default: "bg-primary text-white shadow-sm hover:bg-primary-dark active:bg-primary-dark",
+        destructive: "bg-red-600 text-white shadow-sm hover:bg-red-700",
+        outline: "border border-primary/20 bg-white text-foreground shadow-sm hover:bg-primary-light hover:border-primary/40",
         secondary: "bg-neutral-800 text-white shadow-sm hover:bg-neutral-900",
-        ghost: "text-neutral-600 hover:bg-red-50 hover:text-red-700",
-        link: "text-red-600 underline-offset-4 hover:underline",
+        ghost: "text-neutral-600 hover:bg-primary-light hover:text-primary",
+        link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
         default: "h-9 px-4 py-2",

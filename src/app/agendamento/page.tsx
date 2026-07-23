@@ -125,9 +125,9 @@ function Calendar({ selectedDate, onSelect }: { selectedDate: string; onSelect: 
                 ${!isCurrentMonth ? "text-neutral-200" : ""}
                 ${isPast || !isCurrentMonth ? "cursor-not-allowed opacity-40" : ""}
                 ${isSelected
-                  ? "bg-red-600 text-white shadow-md shadow-red-200 font-bold"
+                  ? "bg-primary text-white shadow-md shadow-primary/20 font-bold"
                   : isDayToday && !isSelected
-                    ? "bg-red-50 text-red-700 font-semibold border border-red-200"
+                    ? "bg-primary-light text-primary font-semibold border border-primary/20"
                     : isCurrentMonth && !isPast
                       ? "hover:bg-neutral-100 text-neutral-700"
                       : "text-neutral-300"
@@ -161,10 +161,10 @@ function StepIndicator({ current }: { current: string }) {
               <div
                 className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-xs md:text-sm font-bold transition-all duration-300 ${
                   isActive
-                    ? "bg-red-600 text-white shadow-lg shadow-red-200 scale-110"
+                    ? "bg-primary text-white shadow-lg shadow-primary/30 scale-110"
                     : isCompleted
-                      ? "bg-neutral-800 text-white"
-                      : "bg-neutral-200 text-neutral-400"
+                      ? "bg-primary-dark text-white"
+                      : "bg-stone-200 text-stone-400"
                 }`}
               >
                 {isCompleted ? (
@@ -175,7 +175,7 @@ function StepIndicator({ current }: { current: string }) {
               </div>
               <span
                 className={`text-[10px] md:text-xs font-medium transition-colors hidden md:block ${
-                  isActive ? "text-red-600" : isCompleted ? "text-neutral-800" : "text-neutral-400"
+                  isActive ? "text-primary" : isCompleted ? "text-stone-800" : "text-stone-400"
                 }`}
               >
                 {s.label}
@@ -304,14 +304,14 @@ export default function AgendamentoPage() {
   const groupedSlots = useMemo(() => groupSlotsByPeriod(slots), [slots]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-neutral-100">
-      <header className="border-b border-neutral-200 bg-white/90 backdrop-blur-md sticky top-0 z-30">
+    <div className="min-h-screen bg-gradient-to-b from-stone-50 to-stone-100">
+      <header className="border-b border-stone-200 bg-white/90 backdrop-blur-md sticky top-0 z-30">
         <div className="flex items-center justify-between px-4 md:px-6 py-3 max-w-3xl mx-auto">
-          <Link href="/" className="flex items-center gap-2 font-bold text-lg md:text-xl text-neutral-900">
-            <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center shadow-sm">
+          <Link href="/" className="flex items-center gap-2 font-bold text-lg md:text-xl text-foreground">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm shadow-primary/20">
               <Scissors className="h-4 w-4 text-white" />
             </div>
-            BarberApp
+            Barber<span className="text-primary">App</span>
           </Link>
           {session ? (
             <Link href="/dashboard">
@@ -409,7 +409,7 @@ export default function AgendamentoPage() {
                           onClick={() => { setSelectedService(service); setStep("barber"); }}
                           className={`group text-left w-full p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
                             isSelected
-                              ? "border-red-500 bg-red-50/50 shadow-md shadow-red-100"
+                              ? "border-red-500 bg-primary-light/50 shadow-md shadow-red-100"
                               : "border-neutral-200 bg-white hover:border-red-300 hover:shadow-md hover:bg-neutral-50"
                           }`}
                         >
@@ -427,8 +427,8 @@ export default function AgendamentoPage() {
                               <p className="text-xs text-neutral-400 mt-1">{service.duration} min</p>
                             </div>
                             <div className="text-right flex-shrink-0">
-                              <p className="font-bold text-lg text-red-600">{formatCurrency(service.price)}</p>
-                              <ArrowRight className={`h-4 w-4 ml-auto transition-opacity ${isSelected ? "opacity-100 text-red-600" : "opacity-0 group-hover:opacity-40"}`} />
+                              <p className="font-bold text-lg text-primary">{formatCurrency(service.price)}</p>
+                              <ArrowRight className={`h-4 w-4 ml-auto transition-opacity ${isSelected ? "opacity-100 text-primary" : "opacity-0 group-hover:opacity-40"}`} />
                             </div>
                           </div>
                         </button>
@@ -450,7 +450,7 @@ export default function AgendamentoPage() {
                           onClick={() => { setSelectedBarber(barber); setStep("datetime"); }}
                           className={`group text-left w-full p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
                             isSelected
-                              ? "border-red-500 bg-red-50/50 shadow-md shadow-red-100"
+                              ? "border-red-500 bg-primary-light/50 shadow-md shadow-red-100"
                               : "border-neutral-200 bg-white hover:border-red-300 hover:shadow-md hover:bg-neutral-50"
                           }`}
                         >
@@ -462,7 +462,7 @@ export default function AgendamentoPage() {
                               <div className="flex items-center gap-2">
                                 <p className="font-semibold text-neutral-900">{barber.name}</p>
                                 {barber.barber?.specialties && (
-                                  <span className="text-[10px] uppercase tracking-wider text-red-600 bg-red-50 px-1.5 py-0.5 rounded font-medium">
+                                  <span className="text-[10px] uppercase tracking-wider text-primary bg-primary-light px-1.5 py-0.5 rounded font-medium">
                                     {barber.barber.specialties}
                                   </span>
                                 )}
@@ -471,7 +471,7 @@ export default function AgendamentoPage() {
                                 <p className="text-sm text-neutral-500 mt-0.5">{barber.barber.bio}</p>
                               )}
                             </div>
-                            <ArrowRight className={`h-4 w-4 flex-shrink-0 transition-opacity ${isSelected ? "opacity-100 text-red-600" : "opacity-0 group-hover:opacity-40 text-neutral-400"}`} />
+                            <ArrowRight className={`h-4 w-4 flex-shrink-0 transition-opacity ${isSelected ? "opacity-100 text-primary" : "opacity-0 group-hover:opacity-40 text-neutral-400"}`} />
                           </div>
                         </button>
                       );
@@ -489,7 +489,7 @@ export default function AgendamentoPage() {
                   <div className="space-y-6">
                     <div>
                       <label className="block text-sm font-semibold text-neutral-700 mb-3 flex items-center gap-2">
-                        <CalendarDays className="h-4 w-4 text-red-600" />
+                        <CalendarDays className="h-4 w-4 text-primary" />
                         Selecione a Data
                       </label>
                       <Calendar
@@ -501,7 +501,7 @@ export default function AgendamentoPage() {
                     {selectedDate && (
                       <div>
                         <label className="block text-sm font-semibold text-neutral-700 mb-3 flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-red-600" />
+                          <Clock className="h-4 w-4 text-primary" />
                           Selecione o Horário
                         </label>
                         {loadingSlots ? (
@@ -527,8 +527,8 @@ export default function AgendamentoPage() {
                                       onClick={() => setSelectedTime(time)}
                                       className={`p-2.5 text-center rounded-lg border-2 text-sm font-medium transition-all duration-150 cursor-pointer ${
                                         selectedTime === time
-                                          ? "border-red-500 bg-red-600 text-white shadow-md shadow-red-200 scale-105"
-                                          : "border-neutral-200 bg-white text-neutral-700 hover:border-red-300 hover:bg-red-50 hover:shadow-sm"
+                                          ? "border-red-500 bg-primary text-white shadow-md shadow-red-200 scale-105"
+                                          : "border-neutral-200 bg-white text-neutral-700 hover:border-red-300 hover:bg-primary-light hover:shadow-sm"
                                       }`}
                                     >
                                       {time}
@@ -563,23 +563,23 @@ export default function AgendamentoPage() {
               {step === "confirm" && (
                 <AnimatedStep step={step}>
                   <div className="space-y-5">
-                    <div className="bg-red-50/70 border border-red-200 rounded-xl p-5 space-y-4">
+                    <div className="bg-primary-light/70 border border-red-200 rounded-xl p-5 space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 bg-red-100 rounded-lg flex items-center justify-center">
-                            <Scissors className="h-4 w-4 text-red-600" />
+                            <Scissors className="h-4 w-4 text-primary" />
                           </div>
                           <div>
                             <p className="text-xs text-neutral-500">Serviço</p>
                             <p className="font-semibold text-neutral-900">{selectedService?.name}</p>
                           </div>
                         </div>
-                        <span className="font-bold text-red-600">{formatCurrency(selectedService?.price || 0)}</span>
+                        <span className="font-bold text-primary">{formatCurrency(selectedService?.price || 0)}</span>
                       </div>
 
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-red-100 rounded-lg flex items-center justify-center">
-                          <User className="h-4 w-4 text-red-600" />
+                          <User className="h-4 w-4 text-primary" />
                         </div>
                         <div>
                           <p className="text-xs text-neutral-500">Barbeiro</p>
@@ -589,7 +589,7 @@ export default function AgendamentoPage() {
 
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-red-100 rounded-lg flex items-center justify-center">
-                          <CalendarDays className="h-4 w-4 text-red-600" />
+                          <CalendarDays className="h-4 w-4 text-primary" />
                         </div>
                         <div>
                           <p className="text-xs text-neutral-500">Data</p>
@@ -601,7 +601,7 @@ export default function AgendamentoPage() {
 
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-red-100 rounded-lg flex items-center justify-center">
-                          <Clock className="h-4 w-4 text-red-600" />
+                          <Clock className="h-4 w-4 text-primary" />
                         </div>
                         <div>
                           <p className="text-xs text-neutral-500">Horário</p>
@@ -610,13 +610,13 @@ export default function AgendamentoPage() {
                       </div>
 
                       <div className="flex items-center gap-3 border-t border-red-200 pt-4">
-                        <div className="w-9 h-9 bg-red-600 rounded-lg flex items-center justify-center">
+                        <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
                           <Sparkles className="h-4 w-4 text-white" />
                         </div>
                         <div className="flex-1">
                           <p className="text-xs text-neutral-500">Valor Total</p>
                         </div>
-                        <span className="font-bold text-xl text-red-600">{formatCurrency(selectedService?.price || 0)}</span>
+                        <span className="font-bold text-xl text-primary">{formatCurrency(selectedService?.price || 0)}</span>
                       </div>
                     </div>
 

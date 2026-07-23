@@ -112,7 +112,7 @@ export default function RelatoriosPage() {
                 key={p.key}
                 onClick={() => setPeriod(p.key)}
                 className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all cursor-pointer ${
-                  period === p.key ? "bg-white text-red-600 shadow-sm" : "text-neutral-500 hover:text-neutral-700"
+                  period === p.key ? "bg-white text-primary shadow-sm" : "text-stone-500 hover:text-stone-700"
                 }`}
               >
                 {p.label}
@@ -246,7 +246,7 @@ export default function RelatoriosPage() {
                 </div>
                 <div className="flex justify-between items-center p-3 bg-neutral-50 rounded-lg">
                   <span className="text-sm text-neutral-600">Cancelamentos</span>
-                  <span className="font-bold text-lg text-red-600">{data.cancellationCount}</span>
+                  <span className="font-bold text-lg text-primary-dark">{data.cancellationCount}</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-neutral-50 rounded-lg">
                   <span className="text-sm text-neutral-600">Total Agendamentos</span>
@@ -268,12 +268,12 @@ export default function RelatoriosPage() {
                     {data.topServices.map((svc, i) => (
                       <div key={svc.name} className="flex items-center gap-3">
                         <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white ${
-                          i === 0 ? "bg-red-600" : i === 1 ? "bg-orange-500" : i === 2 ? "bg-amber-500" : "bg-neutral-400"
+                          i === 0 ? "bg-primary" : i === 1 ? "bg-orange-500" : i === 2 ? "bg-amber-500" : "bg-neutral-400"
                         }`}>{i + 1}</div>
                         <div className="flex-1">
                           <p className="text-sm font-medium">{svc.name}</p>
                           <div className="w-full h-1.5 bg-neutral-100 rounded-full mt-1">
-                            <div className="h-full bg-red-500 rounded-full" style={{ width: `${(svc.count / data.topServices[0].count) * 100}%` }} />
+                            <div className="h-full bg-primary rounded-full" style={{ width: `${(svc.count / data.topServices[0].count) * 100}%` }} />
                           </div>
                         </div>
                         <span className="text-sm font-bold">{svc.count}</span>

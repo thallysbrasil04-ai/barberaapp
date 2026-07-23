@@ -42,7 +42,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     : [];
 
   return (
-    <div className="flex h-screen bg-neutral-100">
+    <div className="flex h-screen bg-stone-100">
       {isMobile && sidebarOpen && (
         <div className="fixed inset-0 z-40 bg-black/50" onClick={() => setSidebarOpen(false)} />
       )}
@@ -52,24 +52,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           isMobile
             ? `fixed inset-y-0 left-0 z-50 w-64 transform transition-transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`
             : "w-64"
-        } bg-neutral-900 text-white flex flex-col shadow-xl`}
+        } bg-stone-950 text-white flex flex-col shadow-xl`}
       >
-        <div className="flex items-center gap-3 px-6 py-5 border-b border-neutral-800">
-          <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Scissors className="h-4 w-4 text-white" />
+        <div className="flex items-center gap-3 px-6 py-5 border-b border-stone-800">
+          <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20">
+            <Scissors className="h-4.5 w-4.5 text-white" />
           </div>
-          <span className="font-bold text-lg text-white">BarberApp</span>
+          <span className="font-bold text-lg tracking-tight">
+            Barber<span className="text-primary">App</span>
+          </span>
           {isMobile && (
-            <button onClick={() => setSidebarOpen(false)} className="ml-auto cursor-pointer text-neutral-400 hover:text-white" aria-label="Fechar menu">
+            <button onClick={() => setSidebarOpen(false)} className="ml-auto cursor-pointer text-stone-400 hover:text-white" aria-label="Fechar menu">
               <X className="h-5 w-5" />
             </button>
           )}
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-3 space-y-1">
           {!isLoaded ? (
-            Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-10 bg-neutral-800 rounded-lg animate-pulse" />
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-10 bg-stone-800/50 rounded-lg animate-pulse" />
             ))
           ) : (
             visibleNav.map((item) => {
@@ -83,11 +85,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   onClick={() => isMobile && setSidebarOpen(false)}
                   className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     isActive
-                      ? "bg-red-600 text-white shadow-md shadow-red-600/20"
-                      : "text-neutral-400 hover:text-white hover:bg-neutral-800"
+                      ? "bg-primary text-white shadow-md shadow-primary/20"
+                      : "text-stone-400 hover:text-white hover:bg-stone-800/50"
                   }`}
                 >
-                  <item.icon className={`h-4 w-4 ${isActive ? "text-white" : ""}`} />
+                  <item.icon className="h-4 w-4" />
                   {item.label}
                 </Link>
               );
@@ -95,22 +97,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )}
         </nav>
 
-        <div className="p-4 border-t border-neutral-800">
+        <div className="p-4 border-t border-stone-800">
           {isLoaded && (
             <div className="mb-3 px-2 text-sm">
               <p className="font-medium text-white truncate">{user!.name}</p>
-              <p className="text-neutral-500 text-xs truncate">{user!.email}</p>
+              <p className="text-stone-500 text-xs truncate">{user!.email}</p>
             </div>
           )}
           {!isLoaded && (
             <div className="mb-3 px-2 space-y-2">
-              <div className="h-4 bg-neutral-800 rounded animate-pulse w-24" />
-              <div className="h-3 bg-neutral-800 rounded animate-pulse w-32" />
+              <div className="h-4 bg-stone-800/50 rounded animate-pulse w-24" />
+              <div className="h-3 bg-stone-800/50 rounded animate-pulse w-32" />
             </div>
           )}
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 transition-all cursor-pointer"
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-stone-400 hover:text-white hover:bg-stone-800/50 transition-all cursor-pointer"
           >
             <LogOut className="h-4 w-4" />
             Sair
@@ -119,14 +121,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="bg-white border-b border-neutral-200 px-6 py-3.5 flex items-center gap-4 shadow-sm">
+        <header className="bg-white border-b border-stone-200 px-6 py-3.5 flex items-center gap-4 shadow-sm">
           {isMobile && (
-            <button onClick={() => setSidebarOpen(true)} className="cursor-pointer text-neutral-600 hover:text-neutral-900" aria-label="Abrir menu">
+            <button onClick={() => setSidebarOpen(true)} className="cursor-pointer text-stone-600 hover:text-stone-900" aria-label="Abrir menu">
               <Menu className="h-5 w-5" />
             </button>
           )}
-          <div className="w-1 h-6 bg-red-600 rounded-full" />
-          <h1 className="font-bold text-lg text-neutral-900">
+          <div className="w-1 h-6 bg-primary rounded-full" />
+          <h1 className="font-bold text-lg text-foreground">
             {visibleNav.find((n) => n.href === pathname)?.label || "Dashboard"}
           </h1>
         </header>
