@@ -50,3 +50,6 @@ prisma/dev.db-journal
 next-env.d.ts
 
 .env*
+
+# landing page (moved to barber-landing repo)
+/landing-sales/
