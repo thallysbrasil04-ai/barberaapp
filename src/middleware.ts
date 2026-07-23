@@ -1,7 +1,7 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
-const publicRoutes = ["/", "/login", "/register", "/agendamento", "/privacidade", "/landing.html"];
+const publicRoutes = ["/", "/login", "/register", "/agendamento", "/privacidade"];
 
 const publicApiPrefixes = [
   "/api/auth",
